@@ -3,6 +3,8 @@
 @section('title', 'Front CMS')
 
 @section('content')
+    @include('admin.partials.cms-module-picker')
+
     <div class="mb-4 rounded border border-neutral-200 bg-white p-4">
         <p class="text-sm text-neutral-500">Media files</p>
         <p class="text-2xl font-semibold">{{ number_format($mediaCount) }}</p>
