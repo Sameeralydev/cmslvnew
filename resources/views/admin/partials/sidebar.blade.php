@@ -1,5 +1,76 @@
 @php
-    $sidebarItems = [
+    $isAccountsSection = request()->is('admin/account*') || request()->routeIs('admin.account.*') || request()->is('cmsc/admin/account*');
+    $isSettingsSection = request()->is('admin/setting*') 
+        || request()->is('admin/system-notification*') 
+        || request()->is('admin/frontcms*') 
+        || request()->is('cmsc/admin/setting*') 
+        || request()->routeIs('admin.system-notification.*') 
+        || request()->routeIs('admin.frontcms.*') 
+        || request()->get('section') === 'settings';
+
+    $settingMenus = [
+        [
+            'type' => 'link',
+            'label' => 'Dashboard',
+            'icon' => 'fa-solid fa-gauge',
+            'route' => 'admin.dashboard',
+            'active' => true,
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'System Settings',
+            'icon' => 'fa-solid fa-gears',
+            'active' => request()->routeIs('admin.system-notification.*') && request()->get('section') !== 'settings',
+            'children' => [
+                ['label' => 'General Setting', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Branch Settings', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Session Settings', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Modules Setting', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Roles Permissions', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Front CMS Setting', 'route' => 'admin.frontcms.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Particles',
+            'icon' => 'fa-solid fa-sitemap',
+            'active' => false,
+            'children' => [
+                ['label' => 'Country', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Province', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Division', 'route' => 'admin.system-notification.index'],
+                ['label' => 'District', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Tehsils', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Area', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Section', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Class', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Department', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Designation', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Academic Year', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Leave Types', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Student Categories', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Skills', 'route' => 'admin.system-notification.index'],
+                ['label' => 'Medium', 'route' => 'admin.system-notification.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Front CMS',
+            'icon' => 'fa-regular fa-snowflake',
+            'active' => request()->routeIs('admin.frontcms.*'),
+            'children' => [
+                ['label' => 'Menus', 'route' => 'admin.frontcms.index'],
+                ['label' => 'Media Gallery', 'route' => 'admin.frontcms.index'],
+                ['label' => 'Banner Images', 'route' => 'admin.frontcms.index'],
+                ['label' => 'Pages', 'route' => 'admin.frontcms.index'],
+                ['label' => 'Events', 'route' => 'admin.frontcms.index'],
+                ['label' => 'News', 'route' => 'admin.frontcms.index'],
+                ['label' => 'Notice', 'route' => 'admin.frontcms.index'],
+            ],
+        ],
+    ];
+
+    $mainSidebarItems = [
         ['label' => 'Dashboard', 'icon' => 'fa-solid fa-desktop', 'route' => 'admin.dashboard'],
         ['label' => 'Staff Recruitment', 'icon' => 'fa-solid fa-users', 'route' => 'admin.hrms.staff.index'],
         ['label' => 'Internal & External Commn', 'icon' => 'fa-regular fa-comments', 'route' => 'admin.adm.mail-sms.index'],
@@ -14,22 +85,131 @@
         ['label' => 'Paper Generate', 'icon' => 'fa-regular fa-copy', 'route' => 'admin.academics.paper-generate.index'],
         ['label' => 'Examination', 'icon' => 'fa-regular fa-file-lines', 'route' => 'admin.academics.exam-schedules.index'],
         ['label' => 'Test System', 'icon' => 'fa-regular fa-file', 'route' => 'admin.academics.test-schedules.index'],
+        ['label' => 'Accounts & Finance', 'icon' => 'fa-solid fa-calculator', 'route' => 'admin.account.accounts.dashboard'],
+    ];
+
+    $accountMenus = [
+        [
+            'type' => 'link',
+            'label' => 'Dashboard',
+            'icon' => 'fa-solid fa-desktop',
+            'route' => 'admin.account.accounts.dashboard',
+            'active' => request()->routeIs('admin.account.accounts.dashboard') || request()->routeIs('admin.account.dashboard'),
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Manual Support',
+            'icon' => 'fa-solid fa-life-ring',
+            'active' => request()->routeIs('admin.account.documents.*'),
+            'children' => [
+                ['label' => 'Add Documents', 'route' => 'admin.account.documents.index'],
+                ['label' => 'Policy Manual', 'route' => 'admin.account.documents.index'],
+                ['label' => 'Flow Charts', 'route' => 'admin.account.documents.index'],
+                ['label' => 'Supportive Documents', 'route' => 'admin.account.documents.index'],
+                ['label' => 'Registers', 'route' => 'admin.account.documents.index'],
+                ['label' => 'Video Supports', 'route' => 'admin.account.documents.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Chart Of Accounts',
+            'icon' => 'fa-solid fa-list',
+            'active' => request()->routeIs('admin.account.accounts.newaccounts*') || request()->routeIs('admin.account.accounts.accountshead*') || request()->routeIs('admin.account.accounts.index') || request()->routeIs('admin.account.fee-master.*') || request()->is('admin/account/feemaster*') || request()->is('cmsc/admin/account/feemaster*') || request()->routeIs('cmsc.admin.account.feemaster.*'),
+            'children' => [
+                ['label' => 'Add Accounts Type', 'route' => 'admin.account.accounts.newaccounts'],
+                ['label' => 'Add New Accounts', 'route' => 'admin.account.accounts.accountshead'],
+                ['label' => 'Chart Of Accounts', 'route' => 'admin.account.accounts.index'],
+                ['label' => 'Fee Structure', 'route' => 'admin.account.fee-master.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Fee Voucher',
+            'icon' => 'fa-regular fa-newspaper',
+            'active' => request()->routeIs('admin.account.student-fees.*') || request()->routeIs('admin.account.studentfee.*') || request()->is('admin/account/studentfee*') || request()->is('admin/account/student-fees*'),
+            'children' => [
+                ['label' => 'Fee Revise', 'route' => 'admin.account.studentfee.feerevise'],
+                ['label' => 'Assign Dues', 'route' => 'admin.account.studentfee.assigndues'],
+                ['label' => 'Assign Fee Voucher', 'route' => 'admin.account.studentfee.assignfeevoucher'],
+                ['label' => 'Assign Fee Voucher Date Wise', 'route' => 'admin.account.studentfee.assignfeevoucherdatewise'],
+                ['label' => 'Fee Voucher Student Sibling', 'route' => 'admin.account.studentfee.feevoucherstudentsibling'],
+                ['label' => 'Fee Voucher', 'route' => 'admin.account.studentfee.feevoucher'],
+                ['label' => 'Custom Fee Voucher', 'route' => 'admin.account.studentfee.customfeevoucher'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Accounting Records',
+            'icon' => 'fa-solid fa-money-bill-wave',
+            'active' => request()->routeIs('admin.account.expenses.*') || request()->routeIs('admin.account.payments.*') || request()->routeIs('admin.account.receipts.*') || request()->routeIs('admin.account.contra.*') || request()->routeIs('admin.account.journal-vouchers.*'),
+            'children' => [
+                ['label' => 'Expense Bill', 'route' => 'admin.account.expenses.index'],
+                ['label' => 'Payment Voucher', 'route' => 'admin.account.payments.index'],
+                ['label' => 'Receipt Voucher', 'route' => 'admin.account.receipts.index'],
+                ['label' => 'Contra Voucher', 'route' => 'admin.account.contra.index'],
+                ['label' => 'JV (Journal Voucher)', 'route' => 'admin.account.journal-vouchers.index'],
+                ['label' => 'Fee Collect', 'route' => 'admin.account.student-fees.index'],
+                ['label' => 'Cash Book', 'route' => 'admin.account.accounts.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Payroll/Advance/Clearance',
+            'icon' => 'fa-solid fa-indent',
+            'active' => request()->routeIs('admin.account.payroll.*'),
+            'children' => [
+                ['label' => 'Payroll', 'route' => 'admin.account.payroll.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Inventory Process',
+            'icon' => 'fa-solid fa-cart-shopping',
+            'active' => request()->routeIs('admin.account.item-categories.*') || request()->routeIs('admin.account.units.*') || request()->routeIs('admin.account.brands.*') || request()->routeIs('admin.account.products.*') || request()->routeIs('admin.account.stock.*') || request()->routeIs('admin.account.suppliers.*') || request()->routeIs('admin.account.class-book-sets.*') || request()->routeIs('admin.account.invoice-book-sets.*') || request()->routeIs('admin.account.invoice-book-set-returns.*') || request()->routeIs('admin.account.purchases.*') || request()->routeIs('admin.account.purchase-returns.*') || request()->routeIs('admin.account.sales.*') || request()->routeIs('admin.account.sales-returns.*'),
+            'children' => [
+                ['label' => 'Item Category', 'route' => 'admin.account.item-categories.index'],
+                ['label' => 'Units', 'route' => 'admin.account.units.index'],
+                ['label' => 'Brands', 'route' => 'admin.account.brands.index'],
+                ['label' => 'Products Services', 'route' => 'admin.account.products.index'],
+                ['label' => 'Stock', 'route' => 'admin.account.stock.index'],
+                ['label' => 'Supplier', 'route' => 'admin.account.suppliers.index'],
+                ['label' => 'Classes Book Sets', 'route' => 'admin.account.class-book-sets.index'],
+                ['label' => 'Invoice Book Sets', 'route' => 'admin.account.invoice-book-sets.index'],
+                ['label' => 'Invoice Book Sets Return', 'route' => 'admin.account.invoice-book-set-returns.index'],
+                ['label' => 'Purchases', 'route' => 'admin.account.purchases.index'],
+                ['label' => 'Purchase Return', 'route' => 'admin.account.purchase-returns.index'],
+                ['label' => 'Sale Invoice', 'route' => 'admin.account.sales.index'],
+                ['label' => 'Sales Return', 'route' => 'admin.account.sales-returns.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Network Associate Account',
+            'icon' => 'fa-solid fa-sitemap',
+            'active' => request()->routeIs('admin.account.royalty.*'),
+            'children' => [
+                ['label' => 'Assign Royalty Voucher', 'route' => 'admin.account.royalty.index'],
+                ['label' => 'Collect Royalty', 'route' => 'admin.account.royalty.index'],
+            ],
+        ],
+        [
+            'type' => 'treeview',
+            'label' => 'Reports & Reviews',
+            'icon' => 'fa-solid fa-chart-column',
+            'active' => false,
+            'children' => [
+                ['label' => 'General Report', 'route' => 'admin.account.accounts.index'],
+                ['label' => 'Incomes / Fee Report', 'route' => 'admin.account.student-fees.index'],
+                ['label' => 'Expenses Report', 'route' => 'admin.account.expenses.index'],
+                ['label' => 'Payroll Report', 'route' => 'admin.account.payroll.index'],
+                ['label' => 'Inventory Reports', 'route' => 'admin.account.purchases.index'],
+            ],
+        ],
     ];
 @endphp
 
-@php
-    $isAcademicsArea = request()->routeIs('admin.academics.*');
-    $curriculumItems = [
-        ['label' => 'Subjects', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.subjects.index'],
-        ['label' => 'Subjects Group', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.subject-groups.index'],
-        ['label' => 'Chapter', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.chapters.index'],
-        ['label' => 'Topic', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.topics.index'],
-        ['label' => 'Modules', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.domain-modules.index'],
-        ['label' => 'Domain', 'icon' => 'fa-solid fa-angle-double-right', 'route' => 'admin.academics.domains.index'],
-    ];
-@endphp
-
-<aside class="admin-sidebar fixed inset-y-0 left-0 z-30 hidden w-[240px] overflow-hidden bg-[#24448d] text-white shadow-xl lg:block">
+<aside class="admin-sidebar fixed inset-y-0 left-0 z-30 hidden w-[296px] overflow-hidden bg-[#24448d] text-white shadow-xl lg:block">
+    {{-- Header --}}
     <div class="admin-sidebar-header flex h-16 items-center gap-2 border-b border-white/10 bg-[#24448d] px-2">
         <div class="admin-avatar flex h-11 w-11 items-center justify-center rounded-full border border-white/50 bg-white/90 text-2xl text-slate-500">
             <i class="fa-regular fa-user"></i>
@@ -40,6 +220,7 @@
         </a>
     </div>
 
+    {{-- Session & Quick Bar --}}
     <div class="border-b border-black/20 bg-[#254693] px-4 py-2 shadow-inner">
         <p class="text-base font-semibold">Current Session: 2026-27</p>
         <div class="mt-2 flex items-center justify-between text-base">
@@ -48,46 +229,136 @@
         </div>
     </div>
 
-    <nav class="h-[calc(100vh-136px)] overflow-y-auto pb-6 pt-2 [scrollbar-width:thin]">
-        @foreach ($sidebarItems as $item)
-            <a
-                href="{{ route($item['route'], absolute: false) }}"
-                class="admin-sidebar-link flex items-center gap-3 px-3 py-3 text-[14px] font-semibold transition hover:bg-white/10 {{ request()->routeIs($item['route']) ? 'is-active' : '' }}"
-            >
-                <span class="w-6 text-center text-lg"><i class="{{ $item['icon'] }}"></i></span>
-                <span class="min-w-0 flex-1 truncate">{{ $item['label'] }}</span>
-                @unless ($loop->first)
-                    <span class="text-2xl leading-none"><i class="fa-solid fa-angle-right"></i></span>
-                @endunless
-            </a>
+    {{-- Sidebar Navigation Links --}}
+    <nav class="h-[calc(100vh-136px)] overflow-y-auto pb-6 pt-2 [scrollbar-width:thin]" id="adminSidebarNav">
+        @if ($isAccountsSection)
+            {{-- ACCOUNTS MODULE SIDEBAR (CMSC Style) --}}
+            <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-blue-200/80 flex items-center justify-between">
+                <span>Accounts & Finance</span>
+                <a href="{{ route('admin.dashboard', absolute: false) }}" class="text-xs text-white/80 hover:text-white underline normal-case">
+                    <i class="fa fa-arrow-left"></i> Main Menu
+                </a>
+            </div>
 
-            @if ($loop->first)
-                @if ($isAcademicsArea)
-                    <a href="{{ route('admin.academics.dashboard.view', absolute: false) }}" class="admin-sidebar-link flex items-center gap-3 px-3 py-3 text-[14px] font-semibold transition hover:bg-white/10">
-                        <span class="w-6 text-center text-lg"><i class="fa-solid fa-life-ring"></i></span>
-                        <span class="min-w-0 flex-1 truncate">Manual Support</span>
-                        <span class="text-2xl leading-none"><i class="fa-solid fa-angle-right"></i></span>
+            @foreach ($accountMenus as $index => $menu)
+                @if ($menu['type'] === 'link')
+                    <a
+                        href="{{ route($menu['route'], absolute: false) }}"
+                        class="admin-sidebar-link flex items-center gap-3 px-3.5 py-2.5 text-[15px] font-medium text-white transition hover:bg-white/10 {{ $menu['active'] ? 'is-active bg-[#3368bf]' : '' }}"
+                    >
+                        <span class="w-6 text-center text-base"><i class="{{ $menu['icon'] }}"></i></span>
+                        <span class="min-w-0 flex-1 truncate">{{ $menu['label'] }}</span>
+                        <span class="text-xs leading-none text-white"><i class="fa-solid fa-angles-right"></i></span>
                     </a>
-                @endif
-
-                <div class="admin-sidebar-group {{ $isAcademicsArea ? 'is-open' : '' }}">
-                    <button type="button" data-sidebar-toggle aria-expanded="{{ $isAcademicsArea ? 'true' : 'false' }}"
-                       class="admin-sidebar-link admin-sidebar-group-toggle w-full border-0 text-left {{ $isAcademicsArea ? 'is-active' : '' }}">
-                        <span class="w-6 text-center text-lg"><i class="fa-solid fa-book-open"></i></span>
-                        <span class="min-w-0 flex-1 truncate">Curriculum Mgmt.</span>
-                        <span class="admin-sidebar-chevron text-2xl leading-none"><i class="fa-solid fa-angle-right"></i></span>
-                    </button>
-                    <div class="admin-sidebar-submenu">
-                        @foreach ($curriculumItems as $curriculumItem)
-                            <a href="{{ route($curriculumItem['route'], absolute: false) }}" class="admin-sidebar-submenu-link {{ request()->routeIs($curriculumItem['route']) ? 'is-active' : '' }}">
-                                <i class="{{ $curriculumItem['icon'] }}"></i>
-                                <span>{{ $curriculumItem['label'] }}</span>
-                            </a>
-                        @endforeach
+                @elseif ($menu['type'] === 'treeview')
+                    <div class="sidebar-treeview-group">
+                        <button
+                            type="button"
+                            onclick="toggleSidebarSubmenu('acc_menu_{{ $index }}', this)"
+                            class="admin-sidebar-link flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-[15px] font-medium text-white transition hover:bg-white/10 focus:outline-none {{ $menu['active'] ? 'is-active bg-[#3368bf]' : '' }}"
+                        >
+                            <span class="w-6 text-center text-base"><i class="{{ $menu['icon'] }}"></i></span>
+                            <span class="min-w-0 flex-1 truncate">{{ $menu['label'] }}</span>
+                            <span class="text-xs leading-none transition-transform duration-200 tree-icon text-white">
+                                <i class="fa-solid {{ $menu['active'] ? 'fa-angle-down' : 'fa-angle-left' }}"></i>
+                            </span>
+                        </button>
+                        <div
+                            id="acc_menu_{{ $index }}"
+                            class="sidebar-submenu bg-[#28539e] py-1.5 {{ $menu['active'] ? '' : 'hidden' }}"
+                        >
+                            @foreach ($menu['children'] as $child)
+                                <a
+                                    href="{{ route($child['route'], absolute: false) }}"
+                                    class="flex items-center gap-3 py-2 pl-7 pr-3 text-[14px] font-normal text-white transition hover:bg-white/10 hover:text-white"
+                                >
+                                    <i class="fa-solid fa-angles-right text-[11px] text-white/90"></i>
+                                    <span class="truncate">{{ $child['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            @endif
-
-        @endforeach
+                @endif
+            @endforeach
+        @elseif ($isSettingsSection)
+            {{-- SYSTEM SETTINGS SIDEBAR (Exact Match to User Screenshot) --}}
+            @foreach ($settingMenus as $index => $menu)
+                @if ($menu['type'] === 'link')
+                    <a
+                        href="{{ route($menu['route'], absolute: false) }}"
+                        class="admin-sidebar-link flex items-center gap-3 px-3.5 py-2.5 text-[15px] font-medium text-white transition hover:bg-white/10 {{ $menu['active'] ? 'is-active bg-[#3368bf]' : '' }}"
+                    >
+                        <span class="w-6 text-center text-base"><i class="{{ $menu['icon'] }}"></i></span>
+                        <span class="min-w-0 flex-1 truncate">{{ $menu['label'] }}</span>
+                        <span class="text-xs leading-none text-white"><i class="fa-solid fa-angles-right"></i></span>
+                    </a>
+                @elseif ($menu['type'] === 'treeview')
+                    <div class="sidebar-treeview-group">
+                        <button
+                            type="button"
+                            onclick="toggleSidebarSubmenu('set_menu_{{ $index }}', this)"
+                            class="admin-sidebar-link flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-[15px] font-medium text-white transition hover:bg-white/10 focus:outline-none {{ $menu['active'] ? 'is-active bg-[#3368bf]' : '' }}"
+                        >
+                            <span class="w-6 text-center text-base"><i class="{{ $menu['icon'] }}"></i></span>
+                            <span class="min-w-0 flex-1 truncate">{{ $menu['label'] }}</span>
+                            <span class="text-xs leading-none transition-transform duration-200 tree-icon text-white">
+                                <i class="fa-solid {{ $menu['active'] ? 'fa-angle-down' : 'fa-angle-left' }}"></i>
+                            </span>
+                        </button>
+                        <div
+                            id="set_menu_{{ $index }}"
+                            class="sidebar-submenu bg-[#28539e] py-1.5 {{ $menu['active'] ? '' : 'hidden' }}"
+                        >
+                            @foreach ($menu['children'] as $child)
+                                <a
+                                    href="{{ route($child['route'], absolute: false) }}"
+                                    class="flex items-center gap-3 py-2 pl-7 pr-3 text-[14px] font-normal text-white transition hover:bg-white/10 hover:text-white"
+                                >
+                                    <i class="fa-solid fa-angles-right text-[11px] text-white/90"></i>
+                                    <span class="truncate">{{ $child['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @else
+            {{-- MAIN SYSTEM SIDEBAR --}}
+            @foreach ($mainSidebarItems as $item)
+                <a
+                    href="{{ route($item['route'], absolute: false) }}"
+                    class="admin-sidebar-link flex items-center gap-3 px-3.5 py-2.5 text-[15px] font-medium text-white transition hover:bg-white/10 {{ request()->routeIs($item['route']) ? 'is-active bg-[#3368bf]' : '' }}"
+                >
+                    <span class="w-6 text-center text-base"><i class="{{ $item['icon'] }}"></i></span>
+                    <span class="min-w-0 flex-1 truncate">{{ $item['label'] }}</span>
+                    @unless ($loop->first)
+                        <span class="text-xs leading-none text-white"><i class="fa-solid fa-angle-right"></i></span>
+                    @endunless
+                </a>
+            @endforeach
+        @endif
     </nav>
 </aside>
+
+<script>
+    function toggleSidebarSubmenu(menuId, button) {
+        var menu = document.getElementById(menuId);
+        if (!menu) return;
+        var isHidden = menu.classList.contains('hidden');
+        var icon = button.querySelector('.tree-icon i');
+
+        if (isHidden) {
+            menu.classList.remove('hidden');
+            button.classList.add('is-active', 'bg-[#3368bf]');
+            if (icon) {
+                icon.className = 'fa-solid fa-angle-down';
+            }
+        } else {
+            menu.classList.add('hidden');
+            button.classList.remove('is-active', 'bg-[#3368bf]');
+            if (icon) {
+                icon.className = 'fa-solid fa-angle-left';
+            }
+        }
+    }
+</script>

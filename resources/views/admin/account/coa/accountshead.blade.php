@@ -1,314 +1,649 @@
 @extends('admin.layouts.app')
 
-@section('title', $title)
+@section('title', $title ?? 'Add New Accounts Head')
 
-@php
-    $selectedHeadId = old('accounts_head_id', $account->accounts_head_id ?? '');
-    $selectedTypeId = old('account_type_id', $account->new_accounts_id ?? '');
-    $openingAmount = old('opening_balance_amount', $openingBalance->debit_amount ?? $openingBalance->credit_amount ?? '');
-@endphp
+@push('styles')
+<style>
+    /* =========================================================
+       CMSC Accounts Head (Add New Accounts) Styling
+       ========================================================= */
+    .content-wrapper {
+        font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #333;
+    }
+
+    .coa-grid-row {
+        display: grid;
+        grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    @media (max-width: 991px) {
+        .coa-grid-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Box Cards */
+    .box {
+        position: relative;
+        border-radius: 4px;
+        background: #ffffff;
+        border: 1px solid #d2d6de;
+        border-top: 3px solid #d2d6de;
+        margin-bottom: 20px;
+        width: 100%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .box.box-primary {
+        border-top-color: #2F5DA8;
+    }
+
+    .box-header {
+        color: #333;
+        background: #fff;
+        border-bottom: 1px solid #f4f4f4;
+        padding: 12px 15px;
+        position: relative;
+    }
+
+    .box-title {
+        display: inline-block;
+        font-size: 16px;
+        margin: 0;
+        line-height: 1.2;
+        font-weight: 500;
+        color: #333333;
+    }
+
+    .box-body {
+        padding: 15px;
+        background: #fff;
+    }
+
+    .box-footer {
+        border-top: 1px solid #f4f4f4;
+        padding: 10px 15px;
+        background-color: #fff;
+        text-align: right;
+    }
+
+    /* Form Fields */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 400;
+        font-size: 13px;
+        color: #333;
+    }
+
+    .form-group label .req {
+        color: #ff0000;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+    .form-control {
+        width: 100%;
+        height: 34px;
+        padding: 6px 12px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        font-size: 13px;
+        color: #555;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #66afe9;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+    }
+
+    textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    /* System Account Warning message boxes */
+    .system-acc-alert {
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        color: #a94442;
+        padding: 10px 12px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        display: none;
+    }
+
+    /* Buttons */
+    .btn-save-cmsc {
+        background-color: #1e3a8a;
+        color: #ffffff !important;
+        border: 1px solid #1e3a8a;
+        padding: 6px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-save-cmsc:hover {
+        background-color: #162c6d;
+        border-color: #162c6d;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* DataTables Container & Search Bar matching media_1787644532542.png */
+    .dataTables_wrapper {
+        font-size: 13px;
+        color: #333;
+    }
+
+    .dataTables_wrapper::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: left !important;
+        text-align: left !important;
+        margin-bottom: 14px !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        font-weight: normal !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        height: 32px !important;
+        width: 200px !important;
+        padding: 4px 10px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
+        font-size: 13px !important;
+        outline: none !important;
+        color: #495057 !important;
+        background-color: #fff !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+        margin-left: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #24448d !important;
+        box-shadow: 0 0 0 2px rgba(36, 68, 141, 0.2) !important;
+    }
+
+    /* DataTables Export Buttons (Copy, Excel, CSV, PDF, Print, Columns) */
+    .dt-buttons {
+        float: right !important;
+        margin-bottom: 14px !important;
+        display: inline-flex !important;
+        gap: 4px !important;
+        align-items: center !important;
+    }
+
+    .dt-buttons .dt-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        background: #1e3a8a !important;
+        border: 1px solid #1e3a8a !important;
+        color: #ffffff !important;
+        border-radius: 4px !important;
+        font-size: 13.5px !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        margin-right: 0 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        box-sizing: border-box !important;
+    }
+
+    .dt-buttons .dt-button i {
+        color: #ffffff !important;
+        font-size: 13.5px !important;
+    }
+
+    .dt-buttons .dt-button:hover {
+        background: #172554 !important;
+        border-color: #172554 !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 5px rgba(30, 58, 138, 0.3) !important;
+    }
+
+    /* Table Styles */
+    .mailbox-messages {
+        overflow-x: auto;
+        border: 1px solid #d2d6de;
+    }
+
+    table.dataTable.example {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 13px !important;
+    }
+
+    table.dataTable.example thead th {
+        background-color: #1e3a8a !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        padding: 9px 12px !important;
+        border: 1px solid #162c6d !important;
+        letter-spacing: 0.2px;
+    }
+
+    table.dataTable.example tbody td {
+        padding: 8px 12px !important;
+        border: 1px solid #e9ecef !important;
+        vertical-align: middle !important;
+        color: #333;
+    }
+
+    table.dataTable.example tbody tr:hover td {
+        background-color: #f5f9ff !important;
+    }
+
+    /* Action Buttons in Table */
+    .btn-action-xs {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 3px;
+        font-size: 11px;
+        color: #fff !important;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        margin-right: 3px;
+        transition: opacity 0.15s ease;
+    }
+
+    .btn-action-xs:hover {
+        opacity: 0.85;
+    }
+
+    .btn-action-edit {
+        background-color: #1e3a8a;
+        border-color: #1e3a8a;
+    }
+
+    .btn-action-success {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+    }
+
+    .btn-action-danger {
+        background-color: #d9534f;
+        border-color: #d43f3a;
+    }
+
+    /* DataTables Info & Pagination */
+    .dataTables_wrapper .dataTables_info {
+        padding-top: 10px;
+        font-size: 12.5px;
+        color: #666;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 10px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 4px 10px !important;
+        font-size: 12px !important;
+        border-radius: 3px !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #1e3a8a !important;
+        color: #fff !important;
+        border-color: #1e3a8a !important;
+    }
+
+    /* Toast Notification */
+    #exportToast {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: #1e3a8a;
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        display: none;
+        z-index: 9999;
+        animation: toastIn 0.3s ease;
+    }
+
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+@endpush
 
 @section('content')
-    @include('admin.account.coa._styles')
+<div class="content-wrapper">
+    <section class="content-header" style="padding: 10px 0 15px;">
+        <h1 style="font-size: 18px; font-weight: 500; margin: 0; color: #333;">
+            <i class="fa fa-list"></i> {{ $title ?? 'Add New Accounts Head' }}
+        </h1>
+    </section>
 
-    <div class="legacy-coa">
-        <section class="content">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">{{ $title }}</h3>
-                        </div>
-
-                        <form action="{{ $account ? route('admin.account.accounts.accountshead.update', ['account' => $account->id, 'branch' => $branchId], false) : route('admin.account.accounts.accountshead.store', ['branch' => $branchId], false) }}" method="post" accept-charset="utf-8">
-                            @csrf
-                            <div class="box-body">
-                                @if (session('success'))
-                                    <div class="alert alert-success text-left">{{ session('success') }}</div>
-                                @endif
-
-                                @if ($account)
-                                    <input type="hidden" name="id" value="{{ $account->id }}">
-                                @endif
-
-                                @if ($branches !== [])
-                                    <div class="form-group">
-                                        <label>Branch</label><small class="req"> *</small>
-                                        <select id="brc_id" name="brc_id" class="form-control selectval brc_id" onchange="getBranchByID(this.value);">
-                                            <option value="">Select</option>
-                                            @foreach ($branches as $branch)
-                                                <option value="{{ $branch->id }}" @selected((int) $branchId === (int) $branch->id)>{{ $branch->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                @endif
-
-                                <div class="form-group">
-                                    <label>Account Head</label><small class="req"> *</small>
-                                    <select id="accounts_head_id" name="accounts_head_id" class="form-control">
-                                        <option value="">Select</option>
-                                        @foreach ($accountTypes as $accountType)
-                                            <option value="{{ $accountType->id }}" @selected((string) $selectedHeadId === (string) $accountType->id)>{{ $accountType->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('accounts_head_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Account Type</label><small class="req"> *</small>
-                                    <select id="account_type_id" name="account_type_id" class="form-control selectval">
-                                        <option value="">Select</option>
-                                        @foreach ($newAccounts as $newAccount)
-                                            <option value="{{ $newAccount->id }}" @selected((string) $selectedTypeId === (string) $newAccount->id)>{{ $newAccount->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('account_type_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div id="ooa" style="display:none;">
-                                    <div class="form-group">
-                                        <label>Account Name</label> <small class="req"> *</small>
-                                        <input autofocus id="name" name="name" type="text" class="form-control" value="{{ old('name', $account->name ?? '') }}">
-                                        @error('name')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div id="ob" style="display:none;">
-                                        <div class="form-group">
-                                            <label>Staff</label>
-                                            <select id="staff_id" name="staff_id" class="form-control">
-                                                <option value="">Select</option>
-                                                @foreach ($staffList as $staff)
-                                                    <option value="{{ $staff->staff_id ?? $staff->id }}" @selected((string) old('staff_id', $account->staff_id ?? '') === (string) ($staff->staff_id ?? $staff->id))>
-                                                        {{ $staff->employee_id }} - {{ trim(($staff->name ?? '').' '.($staff->surname ?? '')) }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Opening Balance Date</label>
-                                            <input id="date" name="date" type="date" class="form-control date" value="{{ old('date', isset($openingBalance->date) ? \Illuminate\Support\Carbon::parse($openingBalance->date)->toDateString() : now()->toDateString()) }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Opening Balance Amount</label>
-                                            <input id="opening_balance_amount" name="opening_balance_amount" type="text" class="form-control" value="{{ $openingAmount }}" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $account->note ?? '') }}</textarea>
-                                    </div>
-                                </div>
-
-                                <div id="ooamsg" style="display:none;">
-                                    <div class="alert alert-danger text-left trevd" style="display:none;">Please add "trade receivable" in the "Student Admission" menu from "Admission Process" tab.</div>
-                                    <div class="alert alert-danger text-left trpayabl" style="display:none;">Please add "trade Payable" in the "Supplier" menu from "Inventory Process" tab.</div>
-                                    <div class="alert alert-danger text-left invt" style="display:none;">Please add "Inventories" in the "Product/Service" menu from "Inventory Process" tab.</div>
-                                    <div class="alert alert-danger text-left salaies" style="display:none;">Please add " Staff Directory" in the "Employees" menu from "Staff Recruitment" tab.</div>
-                                    <div class="alert alert-danger text-left sales" style="display:none;">"Sales" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
-                                    <div class="alert alert-danger text-left salesreturn" style="display:none;">"Sales Return" accounts cannot be created here. They are automatically generated when adding new products / services</div>
-                                    <div class="alert alert-danger text-left purchases" style="display:none;">"Purchases" accounts cannot be created here. They are automatically generated when adding new products / services</div>
-                                    <div class="alert alert-danger text-left purchasesreturn" style="display:none;">"Purchases Return" accounts cannot be created here. They are automatically generated when adding new products / services</div>
-                                    <div class="alert alert-danger text-left costofsales" style="display:none;">"Cost of Sales" accounts cannot be created here. They are automatically generated when adding new products / services</div>
-                                </div>
-                            </div>
-
-                            <div class="box-footer">
-                                <button type="submit" class="btn btn-primary pull-right">Save</button>
-                                <div style="clear:both;"></div>
-                            </div>
-                        </form>
+    <!-- Main content -->
+    <section class="content" style="padding: 0;">
+        <div class="coa-grid-row">
+            {{-- Left Form Column --}}
+            <div>
+                <div class="box box-primary" style="background: #fff; border: 1px solid #d2d6de; border-top: 3px solid #2F5DA8; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px;">
+                    <div class="box-header with-border" style="padding: 12px 15px; border-bottom: 1px solid #f4f4f4;">
+                        <h3 class="box-title" style="font-size: 16px; font-weight: 500; margin: 0; color: #333;">{{ $title ?? 'Add New Accounts Head' }}</h3>
                     </div>
-                </div>
 
-                <div class="col-md-8">
-                    <div class="box box-primary">
-                        <div class="box-header ptbnull">
-                            <h3 class="box-title titlefix">Accounts Head List</h3>
-                        </div>
-                        <div class="box-body">
-                            <div class="legacy-datatable-toolbar">
-                                <input type="search" placeholder="Search...">
-                                <div class="legacy-datatable-icons">
-                                    <span><i class="fa fa-copy"></i></span>
-                                    <span><i class="fa fa-file-csv"></i></span>
-                                    <span><i class="fa fa-file-text"></i></span>
-                                    <span><i class="fa fa-file-pdf"></i></span>
-                                    <span><i class="fa fa-print"></i></span>
-                                    <span><i class="fa fa-table-list"></i></span>
+                    <form id="accountsHeadForm" action="{{ $editAccountHead ? route('admin.account.accounts.accountsheadupdate', ['id' => $editAccountHead->id, 'branch_id' => $brc_id], absolute: false) : route('admin.account.accounts.accountsheadcreate', ['branch_id' => $brc_id], absolute: false) }}" method="POST">
+                        @csrf
+                        <div class="box-body" style="padding: 15px;">
+                            @if (session('success'))
+                                <div class="alert alert-success text-left" style="background-color: #dff0d8; border: 1px solid #d6e9c6; color: #3c763d; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger text-left" style="background-color: #f2dede; border: 1px solid #ebccd1; color: #a94442; padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
+
+                            @if ($branchlist->count() > 1)
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <label for="brc_id" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">Branch <small class="req" style="color: #ff0000; font-weight: normal;">*</small></label>
+                                    <select id="brc_id" name="brc_id" class="form-control" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" onchange="changeBranch(this.value)">
+                                        <option value="">Select Branch</option>
+                                        @foreach ($branchlist as $brc)
+                                            <option value="{{ $brc->id }}" {{ (string)$brc_id === (string)$brc->id ? 'selected' : '' }}>{{ $brc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else
+                                <input type="hidden" name="brc_id" id="brc_id" value="{{ $brc_id }}" />
+                            @endif
+
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label for="accounts_head_id" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">
+                                    Account Head <small class="req" style="color: #ff0000; font-weight: normal;">*</small>
+                                </label>
+                                <select id="accounts_head_id" name="accounts_head_id" class="form-control" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" onchange="onAccountHeadChange(this.value)" required>
+                                    <option value="">Select</option>
+                                    @foreach ($accountstypelist as $acc_type)
+                                        <option value="{{ $acc_type->id }}" {{ (string)$accounts_head_id === (string)$acc_type->id ? 'selected' : '' }}>
+                                            {{ $acc_type->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('accounts_head_id')
+                                    <span class="text-danger" style="color: #ff0000; font-size: 12px; display: block; margin-top: 4px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label for="account_type_id" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">
+                                    Account Type <small class="req" style="color: #ff0000; font-weight: normal;">*</small>
+                                </label>
+                                <select id="account_type_id" name="account_type_id" class="form-control" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" onchange="onAccountTypeChange(this.value)" required>
+                                    <option value="">Select</option>
+                                </select>
+                                @error('account_type_id')
+                                    <span class="text-danger" style="color: #ff0000; font-size: 12px; display: block; margin-top: 4px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div id="ooamsg">
+                                <div class="system-acc-alert trevd">Please add "trade receivable" in the "Student Admission" menu from "Admission Process" tab.</div>
+                                <div class="system-acc-alert trpayabl">Please add "trade Payable" in the "Supplier" menu from "Inventory Process" tab.</div>
+                                <div class="system-acc-alert invt">Please add "Inventories" in the "Product/Service" menu from "Inventory Process" tab.</div>
+                                <div class="system-acc-alert salaies">Please add "Staff Directory" in the "Employees" menu from "Staff Recruitment" tab.</div>
+                                <div class="system-acc-alert sales">"Sales" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
+                                <div class="system-acc-alert salesreturn">"Sales Return" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
+                                <div class="system-acc-alert purchases">"Purchases" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
+                                <div class="system-acc-alert purchasesreturn">"Purchases Return" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
+                                <div class="system-acc-alert costofsales">"Cost of Sales" accounts cannot be created here. They are automatically generated when adding new products / services.</div>
+                            </div>
+
+                            <div id="ooa">
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <label for="name" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">
+                                        Account Name <small class="req" style="color: #ff0000; font-weight: normal;">*</small>
+                                    </label>
+                                    <input autofocus id="name" name="name" type="text" class="form-control" value="{{ $name }}" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" />
+                                    @error('name')
+                                        <span class="text-danger" style="color: #ff0000; font-size: 12px; display: block; margin-top: 4px;">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div id="ob" style="display: none;">
+                                    <div class="form-group" style="margin-bottom: 15px;">
+                                        <label for="date" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">Opening Balance Date</label>
+                                        <input type="date" id="date" name="date" class="form-control" value="{{ $date }}" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 15px;">
+                                        <label for="opening_balance_amount" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">Opening Balance Amount</label>
+                                        <input type="number" step="any" id="opening_balance_amount" name="opening_balance_amount" class="form-control" value="{{ $amount }}" placeholder="0.00" style="width: 100%; height: 34px; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <label for="description" style="font-weight: 400; font-size: 13px; color: #333; display: block; margin-bottom: 5px;">
+                                        Description
+                                    </label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; font-size: 13px;">{{ $description }}</textarea>
                                 </div>
                             </div>
-                            <table class="table table-striped table-bordered table-hover example">
+                        </div>
+
+                        <div class="box-footer" style="padding: 10px 15px; border-top: 1px solid #f4f4f4; text-align: right; background: #fff; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                            @if ($editAccountHead)
+                                <a href="{{ route('admin.account.accounts.accountshead', ['branch_id' => $brc_id], absolute: false) }}" class="btn btn-default" style="display: inline-block; padding: 6px 14px; margin-right: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; color: #333; text-decoration: none; background: #fff;">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn-save-cmsc" style="background-color: #1e3a8a; border: 1px solid #1e3a8a; color: #ffffff; padding: 6px 20px; font-size: 13px; font-weight: 500; border-radius: 4px; cursor: pointer;">
+                                    Update
+                                </button>
+                            @else
+                                <button type="submit" class="btn-save-cmsc" style="background-color: #1e3a8a; border: 1px solid #1e3a8a; color: #ffffff; padding: 6px 20px; font-size: 13px; font-weight: 500; border-radius: 4px; cursor: pointer;">
+                                    Save
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Right Table Column --}}
+            <div>
+                <div class="box box-primary" style="background: #fff; border: 1px solid #d2d6de; border-top: 3px solid #2F5DA8; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px;">
+                    <div class="box-header ptbnull" style="padding: 12px 15px; border-bottom: 1px solid #f4f4f4;">
+                        <h3 class="box-title titlefix" style="font-size: 16px; font-weight: 500; margin: 0; color: #333;">Accounts Head List</h3>
+                    </div>
+                    <div class="box-body" style="padding: 15px;">
+                        <div class="download_label" style="display: none;">Accounts Head List</div>
+                        <div class="table-responsive mailbox-messages">
+                            <table class="table table-striped table-bordered table-hover example" style="width: 100%; border-collapse: collapse; font-size: 13px;">
                                 <thead>
-                                    <tr>
-                                        <th>Account Head</th>
-                                        <th>Account Type</th>
-                                        <th>Account Name</th>
-                                        <th>Action</th>
+                                    <tr style="background-color: #1e3a8a; color: #ffffff;">
+                                        <th style="padding: 8px 12px; border: 1px solid #162c6d; color: #fff; font-weight: 500;">Account Head</th>
+                                        <th style="padding: 8px 12px; border: 1px solid #162c6d; color: #fff; font-weight: 500;">Account Type</th>
+                                        <th style="padding: 8px 12px; border: 1px solid #162c6d; color: #fff; font-weight: 500;">Account Name</th>
+                                        <th class="text-right noExport" style="text-align: right; width: 85px; padding: 8px 12px; border: 1px solid #162c6d; color: #fff; font-weight: 500;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($hierarchy as $head)
-                                        <tr>
-                                            <td>{{ $head->code }}. {{ $head->name }}</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
+                                    @foreach ($resultacclist as $head)
+                                        <tr style="background-color: #ffffff; font-weight: 400;">
+                                            <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef; color: #333; font-weight: 400;">
+                                                {{ $head->code ? $head->code . '. ' : '' }}{{ $head->name }}
+                                            </td>
+                                            <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                            <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                            <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
                                         </tr>
-                                        @foreach ($head->newaccounts as $type)
-                                            <tr>
-                                                <td></td>
-                                                <td>{{ $type->code }}. {{ $type->name }}</td>
-                                                <td></td>
-                                                <td></td>
+                                        @foreach ($head->newAccounts as $sub)
+                                            <tr style="background-color: #ffffff; font-weight: 400;">
+                                                <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                                <td class="mailbox-name" style="padding: 8px 12px 8px 24px; border: 1px solid #e9ecef; color: #333; font-weight: 400;">
+                                                    {{ $sub->code ? $sub->code . '. ' : '' }}{{ $sub->name }}
+                                                </td>
+                                                <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                                <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
                                             </tr>
-                                            @foreach ($type->accountshead as $accountHead)
+                                            @foreach ($sub->accountHeads as $acc)
                                                 <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>{{ $accountHead->code }}. {{ $accountHead->name }}</td>
-                                                    <td class="mailbox-date text-right">
-                                                        @unless ((bool) ($accountHead->is_system ?? false))
-                                                            <button onclick="changestatuspost('{{ $accountHead->id }}')" type="button" class="btn {{ (int) ($accountHead->is_posted ?? 0) === 1 ? 'btn-success' : 'btn-danger' }} btn-xs" title="{{ (int) ($accountHead->is_posted ?? 0) === 1 ? 'Is Posted' : 'Is Post' }}"><i class="fa fa-plus"></i></button>
-                                                            <a href="{{ route('admin.account.accounts.accountshead.edit', ['account' => $accountHead->id, 'branch' => $accountHead->brc_id ?: $branchId], false) }}" class="btn btn-primary btn-xs" title="Edit">
+                                                    <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                                    <td class="mailbox-name" style="padding: 8px 12px; border: 1px solid #e9ecef;"></td>
+                                                    <td class="mailbox-name" style="padding: 8px 12px 8px 36px; border: 1px solid #e9ecef; color: #444;">
+                                                        {{ $acc->code ? $acc->code . '. ' : '' }}{{ $acc->name }}
+                                                    </td>
+                                                    <td class="mailbox-date text-right" style="text-align: right; white-space: nowrap; padding: 8px 12px; border: 1px solid #e9ecef;">
+                                                        @if (!$acc->is_system)
+                                                            @if ($acc->is_posted == 1)
+                                                                <button type="button" onclick="changestatuspost('{{ $acc->id }}')" class="btn btn-success btn-xs" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #5cb85c; color: #fff; border: 1px solid #4cae4c; border-radius: 3px; font-size: 11px; margin-right: 3px; cursor: pointer;" title="Posted">
+                                                                    <i class="fa fa-plus"></i>
+                                                                </button>
+                                                            @else
+                                                                <button type="button" onclick="changestatuspost('{{ $acc->id }}')" class="btn btn-danger btn-xs" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #d9534f; color: #fff; border: 1px solid #d43f3a; border-radius: 3px; font-size: 11px; margin-right: 3px; cursor: pointer;" title="Not Posted">
+                                                                    <i class="fa fa-plus"></i>
+                                                                </button>
+                                                            @endif
+
+                                                            <a href="{{ route('admin.account.accounts.accountsheadedit', ['id' => $acc->id, 'branch_id' => $brc_id], absolute: false) }}" class="btn btn-primary btn-xs" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #1e3a8a; color: #fff; border: 1px solid #1e3a8a; border-radius: 3px; font-size: 11px; text-decoration: none; margin-right: 3px;" title="Edit">
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
-                                                            <button onclick="changestatus('{{ $accountHead->id }}')" type="button" class="btn {{ ($accountHead->is_active ?? 'yes') === 'yes' ? 'btn-success' : 'btn-danger' }} btn-xs" title="{{ ($accountHead->is_active ?? 'yes') === 'yes' ? 'Active' : 'In Active' }}"><i class="fa {{ ($accountHead->is_active ?? 'yes') === 'yes' ? 'fa-check' : 'fa-remove' }}"></i></button>
-                                                        @endunless
+
+                                                            @if ($acc->is_active == 'yes')
+                                                                <button type="button" onclick="changestatus('{{ $acc->id }}')" class="btn btn-success btn-xs" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #5cb85c; color: #fff; border: 1px solid #4cae4c; border-radius: 3px; font-size: 11px; cursor: pointer;" title="Active">
+                                                                    <i class="fa fa-check"></i>
+                                                                </button>
+                                                            @else
+                                                                <button type="button" onclick="changestatus('{{ $acc->id }}')" class="btn btn-danger btn-xs" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #d9534f; color: #fff; border: 1px solid #d43f3a; border-radius: 3px; font-size: 11px; cursor: pointer;" title="Inactive">
+                                                                    <i class="fa fa-remove"></i>
+                                                                </button>
+                                                            @endif
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         @endforeach
-                                    @empty
-                                        <tr>
-                                            <td colspan="4">No accounts head records found, or the legacy tables are not available in this environment.</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
 
-    <script>
-        function getBranchByID(val) {
-            if (val) {
-                window.location.href = '{{ url('/admin/account/accounts/accountshead') }}/' + val;
-            }
-        }
+<div id="exportToast">Action Completed</div>
 
-        function setAccountTypeVisibility(value) {
-            var blocked = {
-                3: 'trevd',
-                23: 'invt',
-                13: 'trpayabl',
-                33: 'sales',
-                34: 'salesreturn',
-                35: 'purchases',
-                36: 'purchasesreturn',
-                37: 'costofsales'
-            };
-            document.querySelectorAll('#ooamsg .alert').forEach(function (element) {
-                element.style.display = 'none';
-            });
+@push('scripts')
+<script>
+    var selectedHeadId = '{{ $accounts_head_id }}';
+    var selectedTypeId = '{{ $account_type_id }}';
 
-            if (blocked[value]) {
-                document.getElementById('ooa').style.display = 'none';
-                document.getElementById('ooamsg').style.display = 'block';
-                document.querySelector('.' + blocked[value]).style.display = 'block';
+    function changeBranch(val) { if (val) window.location.href = "{{ url('admin/account/accounts/accountshead') }}/" + val; }
 
-                return;
-            }
-
-            document.getElementById('ooamsg').style.display = 'none';
-            document.getElementById('ooa').style.display = 'block';
-        }
-
-        function setOpeningBalanceVisibility(headId) {
-            document.getElementById('ob').style.display = ['1', '2', '3'].includes(String(headId)) ? 'block' : 'none';
-        }
-
-        function loadAccountTypes(headId, selectedTypeId) {
-            var target = document.getElementById('account_type_id');
-            target.innerHTML = '<option value="">Select</option>';
-
-            if (!headId) {
-                setAccountTypeVisibility('');
-                setOpeningBalanceVisibility('');
-
-                return;
-            }
-
-            fetch('{{ route('admin.account.accounts.newaccounts.by-head', absolute: false) }}?accounts_head_id=' + encodeURIComponent(headId), {
-                headers: {'X-Requested-With': 'XMLHttpRequest'}
-            })
-                .then(function (response) { return response.json(); })
-                .then(function (items) {
-                    items.forEach(function (item) {
-                        var option = document.createElement('option');
-                        option.value = item.id;
-                        option.textContent = item.name;
-
-                        if (String(selectedTypeId || '') === String(item.id)) {
-                            option.selected = true;
-                        }
-
-                        target.appendChild(option);
-                    });
-
-                    setAccountTypeVisibility(target.value);
-                    setOpeningBalanceVisibility(headId);
+    function onAccountHeadChange(headId, callback) {
+        var typeSelect = document.getElementById('account_type_id');
+        var obSection = document.getElementById('ob');
+        if (headId == '1' || headId == '2' || headId == '3') { if (obSection) obSection.style.display = 'block'; } else { if (obSection) obSection.style.display = 'none'; }
+        typeSelect.innerHTML = '<option value="">Select</option>';
+        if (!headId) return;
+        fetch("{{ route('admin.account.accounts.getBynewaccounts', absolute: false) }}?accounts_head_id=" + headId)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                data.forEach(function(item) {
+                    var opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.text = (item.code ? item.code + '. ' : '') + item.name;
+                    if (String(selectedTypeId) === String(item.id)) opt.selected = true;
+                    typeSelect.appendChild(opt);
                 });
-        }
-
-        function postStatus(url, id) {
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({id: id})
-            })
-                .then(function (response) { return response.json(); })
-                .then(function (data) {
-                    if (data.status === 'success') {
-                        window.location.reload();
-                    } else {
-                        alert((data.error || ['Unable to update record.']).join(' '));
-                    }
-                });
-        }
-
-        function changestatus(id) {
-            postStatus('{{ route('admin.account.accounts.change-status', absolute: false) }}', id);
-        }
-
-        function changestatuspost(id) {
-            postStatus('{{ route('admin.account.accounts.change-status-post', absolute: false) }}', id);
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var headSelect = document.getElementById('accounts_head_id');
-            var typeSelect = document.getElementById('account_type_id');
-
-            headSelect.addEventListener('change', function () {
-                loadAccountTypes(this.value, '');
+                if (callback) callback();
+                onAccountTypeChange(typeSelect.value);
             });
-            typeSelect.addEventListener('change', function () {
-                setAccountTypeVisibility(this.value);
-            });
-            loadAccountTypes(headSelect.value, '{{ $selectedTypeId }}');
-        });
-    </script>
+    }
+
+    function onAccountTypeChange(typeId) {
+        var ooa = document.getElementById('ooa');
+        var ooamsg = document.getElementById('ooamsg');
+        var alerts = document.querySelectorAll('.system-acc-alert');
+        alerts.forEach(function(el) { el.style.display = 'none'; });
+        var typeMap = {'3': '.trevd', '13': '.trpayabl', '23': '.invt', '33': '.sales', '34': '.salesreturn', '35': '.purchases', '36': '.purchasesreturn', '37': '.costofsales'};
+        if (typeMap[typeId]) {
+            if (ooa) ooa.style.display = 'none';
+            if (ooamsg) ooamsg.style.display = 'block';
+            var targetAlert = document.querySelector(typeMap[typeId]);
+            if (targetAlert) targetAlert.style.display = 'block';
+        } else {
+            if (ooamsg) ooamsg.style.display = 'none';
+            if (ooa) ooa.style.display = 'block';
+        }
+    }
+
+    function showToast(message) {
+        var toast = document.getElementById('exportToast');
+        if (toast) {
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(function() { toast.style.display = 'none'; }, 2200);
+        }
+    }
+
+    function changestatus(id) {
+        fetch("{{ route('admin.account.accounts.changestatus', absolute: false) }}", {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+            body: JSON.stringify({ id: id })
+        }).then(function(res) { return res.json(); }).then(function(data) { showToast(data.message || 'Status updated'); setTimeout(function() { window.location.reload(); }, 600); });
+    }
+
+    function changestatuspost(id) {
+        fetch("{{ route('admin.account.accounts.changestatuspost', absolute: false) }}", {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+            body: JSON.stringify({ id: id })
+        }).then(function(res) { return res.json(); }).then(function(data) { showToast(data.message || 'Posting status updated'); setTimeout(function() { window.location.reload(); }, 600); });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (selectedHeadId) { onAccountHeadChange(selectedHeadId, function() { if (selectedTypeId) onAccountTypeChange(selectedTypeId); }); }
+    });
+</script>
+@endpush
 @endsection

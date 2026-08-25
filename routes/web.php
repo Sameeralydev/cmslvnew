@@ -1,5 +1,31 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Account\AccountController;
+use App\Http\Controllers\Admin\Account\AccountDocumentController;
+use App\Http\Controllers\Admin\Account\BrandController;
+use App\Http\Controllers\Admin\Account\ClassBookSetController;
+use App\Http\Controllers\Admin\Account\ContraVoucherController;
+use App\Http\Controllers\Admin\Account\ExpenseController;
+use App\Http\Controllers\Admin\Account\FeeMasterController;
+use App\Http\Controllers\Admin\Account\InvoiceBookSetController;
+use App\Http\Controllers\Admin\Account\InvoiceBookSetReturnController;
+use App\Http\Controllers\Admin\Account\ItemCategoryController;
+use App\Http\Controllers\Admin\Account\JournalVoucherController;
+use App\Http\Controllers\Admin\Account\PaymentVoucherController;
+use App\Http\Controllers\Admin\Account\PayrollController;
+use App\Http\Controllers\Admin\Account\ProductController;
+use App\Http\Controllers\Admin\Account\ProductTypeController;
+use App\Http\Controllers\Admin\Account\PurchaseController;
+use App\Http\Controllers\Admin\Account\PurchaseReturnController;
+use App\Http\Controllers\Admin\Account\ReceiptVoucherController;
+use App\Http\Controllers\Admin\Account\RoyaltyController;
+use App\Http\Controllers\Admin\Account\SaleController;
+use App\Http\Controllers\Admin\Account\SaleReturnController;
+use App\Http\Controllers\Admin\Account\StockController;
+use App\Http\Controllers\Admin\Account\StudentFeeController;
+use App\Http\Controllers\Admin\Account\SupplierController;
+use App\Http\Controllers\Admin\Account\UnitController;
 use App\Http\Controllers\Admin\Academics\AcademicDocumentController;
 use App\Http\Controllers\Admin\Academics\AcademicsController;
 use App\Http\Controllers\Admin\Academics\BookController;
@@ -32,31 +58,6 @@ use App\Http\Controllers\Admin\Academics\TestScheduleController;
 use App\Http\Controllers\Admin\Academics\TimetableController;
 use App\Http\Controllers\Admin\Academics\TopicController;
 use App\Http\Controllers\Admin\Academics\WeekSettingController;
-use App\Http\Controllers\Admin\Account\AccountController;
-use App\Http\Controllers\Admin\Account\AccountDocumentController;
-use App\Http\Controllers\Admin\Account\BrandController;
-use App\Http\Controllers\Admin\Account\ClassBookSetController;
-use App\Http\Controllers\Admin\Account\ContraVoucherController;
-use App\Http\Controllers\Admin\Account\ExpenseController;
-use App\Http\Controllers\Admin\Account\FeeMasterController;
-use App\Http\Controllers\Admin\Account\InvoiceBookSetController;
-use App\Http\Controllers\Admin\Account\InvoiceBookSetReturnController;
-use App\Http\Controllers\Admin\Account\ItemCategoryController;
-use App\Http\Controllers\Admin\Account\JournalVoucherController;
-use App\Http\Controllers\Admin\Account\PaymentVoucherController;
-use App\Http\Controllers\Admin\Account\PayrollController;
-use App\Http\Controllers\Admin\Account\ProductController;
-use App\Http\Controllers\Admin\Account\ProductTypeController;
-use App\Http\Controllers\Admin\Account\PurchaseController;
-use App\Http\Controllers\Admin\Account\PurchaseReturnController;
-use App\Http\Controllers\Admin\Account\ReceiptVoucherController;
-use App\Http\Controllers\Admin\Account\RoyaltyController;
-use App\Http\Controllers\Admin\Account\SaleController;
-use App\Http\Controllers\Admin\Account\SaleReturnController;
-use App\Http\Controllers\Admin\Account\StockController;
-use App\Http\Controllers\Admin\Account\StudentFeeController;
-use App\Http\Controllers\Admin\Account\SupplierController;
-use App\Http\Controllers\Admin\Account\UnitController;
 use App\Http\Controllers\Admin\Adm\AchievementController as AdmAchievementController;
 use App\Http\Controllers\Admin\Adm\AdmDashboardController;
 use App\Http\Controllers\Admin\Adm\AdmDocumentController;
@@ -93,7 +94,7 @@ use App\Http\Controllers\Admin\Adm\StudentTransferController;
 use App\Http\Controllers\Admin\Adm\SubjectAttendanceController;
 use App\Http\Controllers\Admin\Adm\VideoTutorialController;
 use App\Http\Controllers\Admin\Adm\VisitorPurposeController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FrontCmsController;
 use App\Http\Controllers\Admin\Front\BannerController;
 use App\Http\Controllers\Admin\Front\EventController;
 use App\Http\Controllers\Admin\Front\GalleryController as FrontGalleryController;
@@ -101,30 +102,15 @@ use App\Http\Controllers\Admin\Front\MediaController;
 use App\Http\Controllers\Admin\Front\MenuController;
 use App\Http\Controllers\Admin\Front\NoticeController;
 use App\Http\Controllers\Admin\Front\PageController as FrontPageController;
-use App\Http\Controllers\Admin\FrontCmsController;
 use App\Http\Controllers\Admin\Hrms\HrDocumentController;
 use App\Http\Controllers\Admin\Hrms\HrManualController;
 use App\Http\Controllers\Admin\Hrms\HrmsDashboardController;
 use App\Http\Controllers\Admin\Hrms\StaffController as HrmsStaffController;
-use App\Http\Controllers\Admin\Hrms\StaffDisableDirectoryController;
-use App\Http\Controllers\Admin\Hrms\StaffDemandController;
-use App\Http\Controllers\Admin\Hrms\JobAdvertisementController;
-use App\Http\Controllers\Admin\Hrms\JobApplicationController;
-use App\Http\Controllers\Admin\Hrms\WrittenTestController;
-use App\Http\Controllers\Admin\Hrms\InterviewRatingController;
-use App\Http\Controllers\Admin\Hrms\MeritListController;
-use App\Http\Controllers\Admin\Hrms\JobOfferController;
-use App\Http\Controllers\Admin\Hrms\StaffRecruitmentOrderController;
-use App\Http\Controllers\Admin\Hrms\PerformanceAndComplianceController;
-use App\Http\Controllers\Admin\Hrms\TrainingAgendaController;
-use App\Http\Controllers\Admin\Hrms\TrainingNeedAnalysisController;
-use App\Http\Controllers\Admin\Hrms\TrainingEvaluationController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\QmsController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\SystemNotificationController;
-use App\Http\Controllers\Admin\SystemSettingsDashboardController;
 use App\Http\Controllers\Biometric\BiometricController;
 use App\Http\Controllers\Cron\CronController;
 use App\Http\Controllers\Frontend\WelcomeController;
@@ -202,9 +188,8 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'admin', 'branch'])
     ->group(function () {
-        Route::get('/admin/dashboard/{branch?}', [DashboardController::class, 'index'])
+        Route::get('/admin/dashboard', [DashboardController::class, 'index'])
             ->middleware('permission:dashboard,view')
-            ->whereNumber('branch')
             ->name('dashboard');
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -219,12 +204,13 @@ Route::prefix('admin')
             ->middleware('permission:report,view')
             ->name('report.index');
 
+        Route::get('/report/pdffeestructurereport', [FeeMasterController::class, 'downloadPdf'])
+            ->middleware('permission:report,view')
+            ->name('report.pdffeestructurereport');
+
         Route::get('/frontcms', [FrontCmsController::class, 'index'])
             ->middleware('permission:front_cms,view')
             ->name('frontcms.index');
-
-        Route::get('/setting/systemsettings/dashboard', [SystemSettingsDashboardController::class, 'index'])
-            ->name('systemsettings.dashboard');
 
         Route::get('/membership', [MembershipController::class, 'index'])
             ->middleware('permission:membership,view')
@@ -237,15 +223,273 @@ Route::prefix('admin')
         Route::get('/systemnotification', [SystemNotificationController::class, 'index'])
             ->middleware('permission:system_notification,view')
             ->name('system-notification.index');
-    });
 
-Route::prefix('cmsc/admin')
-    ->name('cmsc.admin.')
-    ->middleware(['auth', 'admin', 'branch'])
-    ->group(function () {
-        Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-            ->middleware('permission:dashboard,view')
-            ->name('dashboard');
+        Route::get('/account/accounts/newaccounts', [AccountController::class, 'newaccounts'])
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.newaccounts');
+
+        Route::get('/account/accounts/dashboard', [AccountController::class, 'dashboard'])
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.dashboard');
+
+        Route::match(['get', 'post'], '/account/accounts/accountshead/{branch_id?}', [AccountController::class, 'accountshead'])
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.accountshead');
+
+        Route::post('/account/accounts/accountsheadcreate/{branch_id?}', [AccountController::class, 'accountsheadcreate'])
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.accountsheadcreate');
+
+        Route::get('/account/accounts/accountsheadedit/{id}/{branch_id?}', [AccountController::class, 'accountsheadedit'])
+            ->whereNumber('id')
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.accountsheadedit');
+
+        Route::match(['post', 'put', 'patch'], '/account/accounts/accountsheadedit/{id}/{branch_id?}', [AccountController::class, 'accountsheadupdate'])
+            ->whereNumber('id')
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.accountsheadupdate');
+
+        Route::match(['get', 'post'], '/account/accounts/{branch_id?}', [AccountController::class, 'index'])
+            ->middleware('permission:accounts,view')
+            ->name('account.accounts.index');
+
+        Route::match(['get', 'post'], '/account/feemaster/index/{branch_id?}', [FeeMasterController::class, 'index'])
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.index.branch');
+
+        Route::match(['get', 'post'], '/account/feemaster/{branch_id?}', [FeeMasterController::class, 'index'])
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.index');
+
+        Route::match(['get', 'post'], '/account/fee-master/{branch_id?}', [FeeMasterController::class, 'index'])
+            ->middleware('permission:feemaster,view')
+            ->name('account.fee-master.index');
+
+        Route::get('/account/feemaster/edit/{id}/{branch_id?}', [FeeMasterController::class, 'edit'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.edit');
+
+        Route::get('/account/fee-master/edit/{id}/{branch_id?}', [FeeMasterController::class, 'edit'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.fee-master.edit');
+
+        Route::match(['post', 'put', 'patch'], '/account/feemaster/edit/{id}/{branch_id?}', [FeeMasterController::class, 'update'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.update');
+
+        Route::match(['post', 'put', 'patch'], '/account/fee-master/edit/{id}/{branch_id?}', [FeeMasterController::class, 'update'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.fee-master.update');
+
+        Route::match(['delete', 'get', 'post'], '/account/feemaster/deletegrp/{id}/{branch_id?}', [FeeMasterController::class, 'destroy'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.deletegrp');
+
+        Route::match(['delete', 'get', 'post'], '/account/feemaster/delete/{id}/{branch_id?}', [FeeMasterController::class, 'destroy'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.delete');
+
+        Route::get('/account/feemaster/pdf/{branch_id?}', [FeeMasterController::class, 'downloadPdf'])
+            ->whereNumber('branch_id')
+            ->middleware('permission:feemaster,view')
+            ->name('account.feemaster.pdf');
+
+        Route::get('/report/pdffeestructurereport', [FeeMasterController::class, 'downloadPdf'])
+            ->middleware('permission:feemaster,view')
+            ->name('report.pdffeestructurereport');
+
+        Route::match(['get', 'post'], '/account/studentfee/feerevise/{branch_id?}', [StudentFeeController::class, 'feerevise'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feerevise');
+
+        Route::post('/account/studentfee/feereviseUpdate', [StudentFeeController::class, 'feereviseUpdate'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feereviseUpdate');
+
+        Route::get('/account/studentfee/get-sections/{class_id}', [StudentFeeController::class, 'getSectionsByClass'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getSectionsByClass');
+
+        Route::match(['get', 'post'], '/account/studentfee/assigndues/{branch_id?}', [StudentFeeController::class, 'assigndues'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.assigndues');
+
+        Route::match(['get', 'post'], '/account/studentfee/assign_dues/{branch_id?}', [StudentFeeController::class, 'assigndues'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.assign_dues');
+
+        Route::match(['get', 'post'], '/account/student-fees/assigndues/{branch_id?}', [StudentFeeController::class, 'assigndues'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.assigndues');
+
+        Route::post('/account/studentfee/getStudentByBranch', [StudentFeeController::class, 'getStudentByBranch'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getStudentByBranch');
+
+        Route::post('/account/studentfee/getClassesByBranch', [StudentFeeController::class, 'getClassesByBranch'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getClassesByBranch');
+
+        Route::post('/account/studentfee/getClassesSectionsByBranch', [StudentFeeController::class, 'getClassesSectionsByBranch'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getClassesSectionsByBranch');
+
+        Route::post('/account/studentfee/getStudentClassSectionsByBranch', [StudentFeeController::class, 'getStudentClassSectionsByBranch'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getStudentClassSectionsByBranch');
+
+        Route::post('/account/studentfee/getstdByBrcIDByAdmitNo', [StudentFeeController::class, 'getstdByBrcIDByAdmitNo'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getstdByBrcIDByAdmitNo');
+
+        Route::post('/account/studentfee/getFeeTypeByBranchID', [StudentFeeController::class, 'getFeeTypeByBranchID'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getFeeTypeByBranchID');
+
+        Route::post('/account/studentfee/addDues', [StudentFeeController::class, 'addDues'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.addDues');
+
+        Route::match(['get', 'post'], '/account/studentfee/assignfeevoucher/{branch_id?}', [StudentFeeController::class, 'assignfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.assignfeevoucher');
+
+        Route::match(['get', 'post'], '/account/studentfee/feevoucher/{branch_id?}', [StudentFeeController::class, 'feevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feevoucher');
+
+        Route::match(['get', 'post'], '/account/student-fees/assignfeevoucher/{branch_id?}', [StudentFeeController::class, 'assignfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.assignfeevoucher');
+
+        Route::post('/account/studentfee/revertfeevoucher', [StudentFeeController::class, 'revertfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.revertfeevoucher');
+
+        Route::match(['get', 'post'], '/account/studentfee/assignfeevoucherdatewise/{branch_id?}', [StudentFeeController::class, 'assignfeevoucherdatewise'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.assignfeevoucherdatewise');
+
+        Route::match(['get', 'post'], '/account/studentfee/feevoucherdatewise/{branch_id?}', [StudentFeeController::class, 'assignfeevoucherdatewise'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feevoucherdatewise');
+
+        Route::match(['get', 'post'], '/account/student-fees/assignfeevoucherdatewise/{branch_id?}', [StudentFeeController::class, 'assignfeevoucherdatewise'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.assignfeevoucherdatewise');
+
+        Route::get('/account/studentfee/getStudentFeeSummary', [StudentFeeController::class, 'getStudentFeeSummary'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getStudentFeeSummary');
+
+        Route::match(['get', 'post'], '/account/studentfee/printfeevoucher', [StudentFeeController::class, 'printfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.printfeevoucher');
+
+        Route::match(['get', 'post'], '/account/student-fees/printfeevoucher', [StudentFeeController::class, 'printfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.printfeevoucher');
+
+        Route::match(['get', 'post'], '/account/studentfee/feevoucherstudentsibling/{branch_id?}/{tab?}', [StudentFeeController::class, 'feevoucherstudentsibling'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feevoucherstudentsibling');
+
+        Route::match(['get', 'post'], '/account/student-fees/feevoucherstudentsibling/{branch_id?}/{tab?}', [StudentFeeController::class, 'feevoucherstudentsibling'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.feevoucherstudentsibling');
+
+        Route::get('/account/studentfee/getSiblingFeeSummary', [StudentFeeController::class, 'getSiblingFeeSummary'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.getSiblingFeeSummary');
+
+        Route::match(['get', 'post'], '/account/studentfee/feevoucher/{branch_id?}/{chk?}', [StudentFeeController::class, 'feevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.feevoucher');
+
+        Route::match(['get', 'post'], '/account/student-fees/feevoucher/{branch_id?}/{chk?}', [StudentFeeController::class, 'feevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.feevoucher');
+
+        Route::match(['get', 'post'], '/account/studentfee/customfeevoucher/{branch_id?}', [StudentFeeController::class, 'customfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.studentfee.customfeevoucher');
+
+        Route::match(['get', 'post'], '/account/student-fees/customfeevoucher/{branch_id?}', [StudentFeeController::class, 'customfeevoucher'])
+            ->middleware('permission:studentfee,view')
+            ->name('account.student-fees.customfeevoucher');
+
+        Route::get('/account/studentfee/get-sections/{class_id}', function ($classId) {
+            $classId = (int) $classId;
+            $sections = collect();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('class_sections')) {
+                $sections = \Illuminate\Support\Facades\DB::table('class_sections')
+                    ->join('sections', 'sections.id', '=', 'class_sections.section_id')
+                    ->where('class_sections.class_id', $classId)
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            if ($sections->isEmpty() && \Illuminate\Support\Facades\Schema::hasTable('student_session')) {
+                $sections = \Illuminate\Support\Facades\DB::table('student_session')
+                    ->join('sections', 'sections.id', '=', 'student_session.section_id')
+                    ->where('student_session.class_id', $classId)
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->distinct()
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            if ($sections->isEmpty() && \Illuminate\Support\Facades\Schema::hasTable('sections')) {
+                $sections = \Illuminate\Support\Facades\DB::table('sections')
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            return response()->json($sections);
+        });
+
+        Route::get('/setting/sections/getByClass', function (\Illuminate\Http\Request $request) {
+            $classId = (int) $request->input('class_id');
+            $sections = collect();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('class_sections')) {
+                $sections = \Illuminate\Support\Facades\DB::table('class_sections')
+                    ->join('sections', 'sections.id', '=', 'class_sections.section_id')
+                    ->where('class_sections.class_id', $classId)
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            if ($sections->isEmpty() && \Illuminate\Support\Facades\Schema::hasTable('student_session')) {
+                $sections = \Illuminate\Support\Facades\DB::table('student_session')
+                    ->join('sections', 'sections.id', '=', 'student_session.section_id')
+                    ->where('student_session.class_id', $classId)
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->distinct()
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            if ($sections->isEmpty() && \Illuminate\Support\Facades\Schema::hasTable('sections')) {
+                $sections = \Illuminate\Support\Facades\DB::table('sections')
+                    ->select('sections.id as section_id', 'sections.id', 'sections.section', 'sections.section as name')
+                    ->orderBy('sections.section', 'asc')
+                    ->get();
+            }
+
+            return response()->json($sections);
+        })->name('setting.sections.getByClass');
     });
 
 Route::prefix('admin/academics')
@@ -255,10 +499,6 @@ Route::prefix('admin/academics')
         Route::get('/acadm', [AcademicsController::class, 'index'])
             ->middleware('permission:academics,view')
             ->name('dashboard');
-
-        Route::get('/acadm/dashboard', [AcademicsController::class, 'index'])
-            ->middleware('permission:academics,view')
-            ->name('dashboard.legacy');
 
         Route::get('/book', [BookController::class, 'index'])
             ->middleware('permission:book,view')
@@ -385,65 +625,85 @@ Route::prefix('admin/academics')
             ->name('week-settings.index');
     });
 
-Route::prefix('admin/account')
+    Route::prefix('admin/account')
     ->name('admin.account.')
     ->middleware(['auth', 'admin', 'branch', 'financial.year'])
     ->group(function () {
-        Route::get('/accounts', [AccountController::class, 'index'])
-            ->middleware('permission:accounts,view')
-            ->name('accounts.index');
-
         Route::get('/accounts/dashboard', [AccountController::class, 'dashboard'])
             ->middleware('permission:accounts,view')
-            ->name('accounts.dashboard.legacy');
+            ->name('accounts.dashboard');
 
-        Route::get('/accounts/newaccounts', [AccountController::class, 'newAccounts'])
+        Route::get('/dashboard', [AccountController::class, 'dashboard'])
+            ->middleware('permission:accounts,view')
+            ->name('dashboard');
+
+        Route::match(['get', 'post'], '/accounts/newaccounts', [AccountController::class, 'newaccounts'])
             ->middleware('permission:accounts,view')
             ->name('accounts.newaccounts');
 
-        Route::post('/accounts/newaccountscreate', [AccountController::class, 'storeNewAccount'])
+        Route::post('/accounts/newaccountscreate', [AccountController::class, 'newaccountscreate'])
             ->middleware('permission:accounts,view')
-            ->name('accounts.newaccounts.store');
+            ->name('accounts.newaccountscreate');
 
-        Route::get('/accounts/newaccountsedit/{account}', [AccountController::class, 'editNewAccount'])
+        Route::get('/accounts/newaccountsedit/{id}', [AccountController::class, 'newaccountsedit'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->name('accounts.newaccounts.edit');
+            ->name('accounts.newaccountsedit');
 
-        Route::post('/accounts/newaccountsedit/{account}', [AccountController::class, 'updateNewAccount'])
+        Route::match(['post', 'put', 'patch'], '/accounts/newaccountsedit/{id}', [AccountController::class, 'newaccountsupdate'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->name('accounts.newaccounts.update');
+            ->name('accounts.newaccountsupdate');
 
-        Route::get('/accounts/accountshead/{branch?}', [AccountController::class, 'accountsHead'])
+        Route::match(['delete', 'get', 'post'], '/accounts/newaccounts/{id}', [AccountController::class, 'newaccountsdelete'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->whereNumber('branch')
+            ->name('accounts.newaccountsdelete');
+
+        Route::match(['delete', 'get', 'post'], '/accounts/newaccountsdelete/{id}', [AccountController::class, 'newaccountsdelete'])
+            ->whereNumber('id')
+            ->middleware('permission:accounts,view')
+            ->name('accounts.newaccountsdelete.alias');
+
+        Route::match(['get', 'post'], '/accounts/accountshead/{branch_id?}', [AccountController::class, 'accountshead'])
+            ->middleware('permission:accounts,view')
             ->name('accounts.accountshead');
 
-        Route::post('/accounts/accountsheadcreate/{branch?}', [AccountController::class, 'storeAccountsHead'])
+        Route::post('/accounts/accountsheadcreate/{branch_id?}', [AccountController::class, 'accountsheadcreate'])
             ->middleware('permission:accounts,view')
-            ->whereNumber('branch')
-            ->name('accounts.accountshead.store');
+            ->name('accounts.accountsheadcreate');
 
-        Route::get('/accounts/accountsheadedit/{account}/{branch?}', [AccountController::class, 'editAccountsHead'])
+        Route::get('/accounts/accountsheadedit/{id}/{branch_id?}', [AccountController::class, 'accountsheadedit'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->whereNumber('branch')
-            ->name('accounts.accountshead.edit');
+            ->name('accounts.accountsheadedit');
 
-        Route::post('/accounts/accountsheadedit/{account}/{branch?}', [AccountController::class, 'updateAccountsHead'])
+        Route::match(['post', 'put', 'patch'], '/accounts/accountsheadedit/{id}/{branch_id?}', [AccountController::class, 'accountsheadupdate'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->whereNumber('branch')
-            ->name('accounts.accountshead.update');
+            ->name('accounts.accountsheadupdate');
 
-        Route::get('/accounts/getBynewaccounts', [AccountController::class, 'getByNewAccounts'])
+        Route::match(['delete', 'get', 'post'], '/accounts/accountsheaddelete/{id}', [AccountController::class, 'accountsheaddelete'])
+            ->whereNumber('id')
             ->middleware('permission:accounts,view')
-            ->name('accounts.newaccounts.by-head');
+            ->name('accounts.accountsheaddelete');
 
-        Route::post('/accounts/changestatus', [AccountController::class, 'changeStatus'])
+        Route::get('/accounts/getBynewaccounts', [AccountController::class, 'getBynewaccounts'])
             ->middleware('permission:accounts,view')
-            ->name('accounts.change-status');
+            ->name('accounts.getBynewaccounts');
 
-        Route::post('/accounts/changestatuspost', [AccountController::class, 'changeStatusPost'])
+        Route::post('/accounts/changestatus', [AccountController::class, 'changestatus'])
             ->middleware('permission:accounts,view')
-            ->name('accounts.change-status-post');
+            ->name('accounts.changestatus');
+
+        Route::post('/accounts/changestatuspost', [AccountController::class, 'changestatuspost'])
+            ->middleware('permission:accounts,view')
+            ->name('accounts.changestatuspost');
+
+        Route::match(['get', 'post'], '/accounts/{branch_id?}', [AccountController::class, 'index'])
+            ->whereNumber('branch_id')
+            ->middleware('permission:accounts,view')
+            ->name('accounts.index');
 
         Route::get('/brands', [BrandController::class, 'index'])
             ->middleware('permission:brands,view')
@@ -465,9 +725,40 @@ Route::prefix('admin/account')
             ->middleware('permission:expenses,view')
             ->name('expenses.index');
 
-        Route::get('/feemaster', [FeeMasterController::class, 'index'])
+        Route::match(['get', 'post'], '/feemaster/index/{branch_id?}', [FeeMasterController::class, 'index'])
+            ->whereNumber('branch_id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.index.branch');
+
+        Route::match(['get', 'post'], '/feemaster/{branch_id?}', [FeeMasterController::class, 'index'])
+            ->whereNumber('branch_id')
             ->middleware('permission:feemaster,view')
             ->name('fee-master.index');
+
+        Route::get('/feemaster/edit/{id}/{branch_id?}', [FeeMasterController::class, 'edit'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.edit');
+
+        Route::match(['post', 'put', 'patch'], '/feemaster/edit/{id}/{branch_id?}', [FeeMasterController::class, 'update'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.update');
+
+        Route::match(['delete', 'get', 'post'], '/feemaster/deletegrp/{id}/{branch_id?}', [FeeMasterController::class, 'destroy'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.deletegrp');
+
+        Route::match(['delete', 'get', 'post'], '/feemaster/delete/{id}/{branch_id?}', [FeeMasterController::class, 'destroy'])
+            ->whereNumber('id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.delete');
+
+        Route::get('/feemaster/pdf/{branch_id?}', [FeeMasterController::class, 'downloadPdf'])
+            ->whereNumber('branch_id')
+            ->middleware('permission:feemaster,view')
+            ->name('fee-master.pdf');
 
         Route::get('/invoicebooksets', [InvoiceBookSetController::class, 'index'])
             ->middleware('permission:invoicebooksets,view')
@@ -549,10 +840,6 @@ Route::prefix('admin/adm')
         Route::get('/admn', [AdmDashboardController::class, 'index'])
             ->middleware('permission:admn,view')
             ->name('dashboard');
-
-        Route::get('/admn/dashboard', [AdmDashboardController::class, 'index'])
-            ->middleware('permission:admn,view')
-            ->name('dashboard.legacy');
 
         Route::get('/achievement', [AdmAchievementController::class, 'index'])
             ->middleware('permission:achievement,view')
@@ -736,49 +1023,6 @@ Route::prefix('admin/hrms')
             ->middleware('permission:hrm,view')
             ->name('dashboard');
 
-        Route::get('/hrm/dashboard', [HrmsDashboardController::class, 'index'])
-            ->middleware('permission:hrm,view')
-            ->name('dashboard.legacy');
-
-        Route::get('/trainingagenda', [TrainingAgendaController::class, 'index'])
-            ->middleware('permission:training_agenda,view')->name('training.agenda.index');
-        Route::post('/trainingagenda', [TrainingAgendaController::class, 'store'])
-            ->middleware('permission:training_agenda,edit')->name('training.agenda.store');
-        Route::get('/trainingagenda/{trainingAgenda}/edit', [TrainingAgendaController::class, 'edit'])
-            ->middleware('permission:training_agenda,edit')->name('training.agenda.edit');
-        Route::put('/trainingagenda/{trainingAgenda}', [TrainingAgendaController::class, 'update'])
-            ->middleware('permission:training_agenda,edit')->name('training.agenda.update');
-        Route::get('/trainingagenda/{trainingAgenda}', [TrainingAgendaController::class, 'show'])
-            ->middleware('permission:training_agenda,view')->name('training.agenda.show');
-        Route::delete('/trainingagenda/{trainingAgenda}', [TrainingAgendaController::class, 'destroy'])
-            ->middleware('permission:training_agenda,delete')->name('training.agenda.destroy');
-
-        Route::get('/trainingneedanalysis', [TrainingNeedAnalysisController::class, 'index'])
-            ->middleware('permission:training_analysis,view')->name('training.analysis.index');
-        Route::post('/trainingneedanalysis', [TrainingNeedAnalysisController::class, 'store'])
-            ->middleware('permission:training_analysis,edit')->name('training.analysis.store');
-        Route::get('/trainingneedanalysis/{trainingNeedAnalysis}/edit', [TrainingNeedAnalysisController::class, 'edit'])
-            ->middleware('permission:training_analysis,edit')->name('training.analysis.edit');
-        Route::put('/trainingneedanalysis/{trainingNeedAnalysis}', [TrainingNeedAnalysisController::class, 'update'])
-            ->middleware('permission:training_analysis,edit')->name('training.analysis.update');
-        Route::get('/trainingneedanalysis/{trainingNeedAnalysis}', [TrainingNeedAnalysisController::class, 'show'])
-            ->middleware('permission:training_analysis,view')->name('training.analysis.show');
-        Route::delete('/trainingneedanalysis/{trainingNeedAnalysis}', [TrainingNeedAnalysisController::class, 'destroy'])
-            ->middleware('permission:training_analysis,delete')->name('training.analysis.destroy');
-
-        Route::get('/trainingevaluationform', [TrainingEvaluationController::class, 'index'])
-            ->middleware('permission:training_evaluation,view')->name('training.evaluation.index');
-        Route::post('/trainingevaluationform', [TrainingEvaluationController::class, 'store'])
-            ->middleware('permission:training_evaluation,edit')->name('training.evaluation.store');
-        Route::get('/trainingevaluationform/{trainingEvaluation}/edit', [TrainingEvaluationController::class, 'edit'])
-            ->middleware('permission:training_evaluation,edit')->name('training.evaluation.edit');
-        Route::put('/trainingevaluationform/{trainingEvaluation}', [TrainingEvaluationController::class, 'update'])
-            ->middleware('permission:training_evaluation,edit')->name('training.evaluation.update');
-        Route::get('/trainingevaluationform/{trainingEvaluation}', [TrainingEvaluationController::class, 'show'])
-            ->middleware('permission:training_evaluation,view')->name('training.evaluation.show');
-        Route::delete('/trainingevaluationform/{trainingEvaluation}', [TrainingEvaluationController::class, 'destroy'])
-            ->middleware('permission:training_evaluation,delete')->name('training.evaluation.destroy');
-
         Route::get('/documentshrm', [HrDocumentController::class, 'index'])
             ->middleware('permission:documentshrm,view')
             ->name('documents.index');
@@ -790,176 +1034,6 @@ Route::prefix('admin/hrms')
         Route::get('/staff', [HrmsStaffController::class, 'index'])
             ->middleware('permission:staff,view')
             ->name('staff.index');
-
-        Route::get('/staffdisabledirectory', [StaffDisableDirectoryController::class, 'index'])
-            ->middleware('permission:staff,view')
-            ->name('staff-disable-directory.index');
-        Route::post('/staffdisabledirectory/{staff}/enable', [StaffDisableDirectoryController::class, 'enable'])
-            ->middleware('permission:staff,edit')
-            ->whereNumber('staff')
-            ->name('staff-disable-directory.enable');
-
-        Route::match(['get', 'post'], '/staff/import', [HrmsStaffController::class, 'import'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.import');
-
-        Route::get('/staffdemand', [StaffDemandController::class, 'index'])
-            ->middleware('permission:staff_demand,view')->name('staffdemand.index');
-        Route::post('/staffdemand', [StaffDemandController::class, 'store'])
-            ->middleware('permission:staff_demand,edit')->name('staffdemand.store');
-        Route::get('/staffdemand/{staffDemand}/edit', [StaffDemandController::class, 'edit'])
-            ->middleware('permission:staff_demand,edit')->name('staffdemand.edit');
-        Route::put('/staffdemand/{staffDemand}', [StaffDemandController::class, 'update'])
-            ->middleware('permission:staff_demand,edit')->name('staffdemand.update');
-        Route::get('/staffdemand/{staffDemand}', [StaffDemandController::class, 'show'])
-            ->middleware('permission:staff_demand,view')->name('staffdemand.show');
-        Route::delete('/staffdemand/{staffDemand}', [StaffDemandController::class, 'destroy'])
-            ->middleware('permission:staff_demand,delete')->name('staffdemand.destroy');
-        Route::post('/staffdemand/staff-by-campus', [StaffDemandController::class, 'staffByCampus'])
-            ->middleware('permission:staff_demand,view')->name('staffdemand.staff-by-campus');
-
-        Route::get('/jobadvertisements', [JobAdvertisementController::class, 'index'])
-            ->middleware('permission:job_advertisements,view')->name('jobadvertisements.index');
-        Route::post('/jobadvertisements', [JobAdvertisementController::class, 'store'])
-            ->middleware('permission:job_advertisements,edit')->name('jobadvertisements.store');
-        Route::get('/jobadvertisements/{jobAdvertisement}/edit', [JobAdvertisementController::class, 'edit'])
-            ->middleware('permission:job_advertisements,edit')->name('jobadvertisements.edit');
-        Route::put('/jobadvertisements/{jobAdvertisement}', [JobAdvertisementController::class, 'update'])
-            ->middleware('permission:job_advertisements,edit')->name('jobadvertisements.update');
-        Route::get('/jobadvertisements/{jobAdvertisement}', [JobAdvertisementController::class, 'show'])
-            ->middleware('permission:job_advertisements,view')->name('jobadvertisements.show');
-        Route::delete('/jobadvertisements/{jobAdvertisement}', [JobAdvertisementController::class, 'destroy'])
-            ->middleware('permission:job_advertisements,delete')->name('jobadvertisements.destroy');
-        Route::post('/jobadvertisements/salary-range', [JobAdvertisementController::class, 'salaryRange'])
-            ->middleware('permission:job_advertisements,view')->name('jobadvertisements.salary-range');
-        Route::post('/jobadvertisements/{jobAdvertisement}/status', [JobAdvertisementController::class, 'updateStatus'])
-            ->middleware('permission:job_advertisements,edit')->name('jobadvertisements.status');
-        Route::get('/jobadvertisements/{jobAdvertisement}/print', [JobAdvertisementController::class, 'print'])
-            ->middleware('permission:job_advertisements,view')->name('jobadvertisements.print');
-
-        Route::get('/jobapplications', [JobApplicationController::class, 'index'])
-            ->middleware('permission:job_applications,view')->name('jobapplications.index');
-        Route::post('/jobapplications', [JobApplicationController::class, 'store'])
-            ->middleware('permission:job_applications,edit')->name('jobapplications.store');
-        Route::get('/jobapplications/{jobApplication}/edit', [JobApplicationController::class, 'edit'])
-            ->middleware('permission:job_applications,edit')->name('jobapplications.edit');
-        Route::put('/jobapplications/{jobApplication}', [JobApplicationController::class, 'update'])
-            ->middleware('permission:job_applications,edit')->name('jobapplications.update');
-        Route::get('/jobapplications/{jobApplication}', [JobApplicationController::class, 'show'])
-            ->middleware('permission:job_applications,view')->name('jobapplications.show');
-        Route::delete('/jobapplications/{jobApplication}', [JobApplicationController::class, 'destroy'])
-            ->middleware('permission:job_applications,delete')->name('jobapplications.destroy');
-        Route::post('/jobapplications/job-details', [JobApplicationController::class, 'jobDetails'])
-            ->middleware('permission:job_applications,view')->name('jobapplications.job-details');
-        Route::post('/jobapplications/{jobApplication}/status', [JobApplicationController::class, 'updateStatus'])
-            ->middleware('permission:job_applications,edit')->name('jobapplications.status');
-        Route::get('/jobapplications/{jobApplication}/print', [JobApplicationController::class, 'print'])
-            ->middleware('permission:job_applications,view')->name('jobapplications.print');
-
-        Route::get('/Writtentest', [WrittenTestController::class, 'index'])
-            ->middleware('permission:written_test,view')->name('writtentest.index');
-        Route::post('/Writtentest/{jobApplication}/update-marks', [WrittenTestController::class, 'updateMarks'])
-            ->middleware('permission:written_test,edit')->name('writtentest.update-marks');
-
-        Route::get('/interviewratings', [InterviewRatingController::class, 'index'])
-            ->middleware('permission:interview_ratings,view')->name('interviewratings.index');
-        Route::post('/interviewratings', [InterviewRatingController::class, 'store'])
-            ->middleware('permission:interview_ratings,edit')->name('interviewratings.store');
-        Route::get('/interviewratings/{interviewRating}/edit', [InterviewRatingController::class, 'edit'])
-            ->middleware('permission:interview_ratings,edit')->name('interviewratings.edit');
-        Route::put('/interviewratings/{interviewRating}', [InterviewRatingController::class, 'update'])
-            ->middleware('permission:interview_ratings,edit')->name('interviewratings.update');
-        Route::get('/interviewratings/{interviewRating}', [InterviewRatingController::class, 'show'])
-            ->middleware('permission:interview_ratings,view')->name('interviewratings.show');
-        Route::delete('/interviewratings/{interviewRating}', [InterviewRatingController::class, 'destroy'])
-            ->middleware('permission:interview_ratings,delete')->name('interviewratings.destroy');
-        Route::post('/interviewratings/{interviewRating}/decision', [InterviewRatingController::class, 'updateDecision'])
-            ->middleware('permission:interview_ratings,edit')->name('interviewratings.decision');
-
-        Route::get('/meritlist', [MeritListController::class, 'index'])
-            ->middleware('permission:merit_list,view')->name('meritlist.index');
-
-        Route::get('/joboffers', [JobOfferController::class, 'index'])
-            ->middleware('permission:job_offer_letters,view')->name('joboffers.index');
-        Route::post('/joboffers', [JobOfferController::class, 'store'])
-            ->middleware('permission:job_offer_letters,edit')->name('joboffers.store');
-        Route::get('/joboffers/{jobOffer}/edit', [JobOfferController::class, 'edit'])
-            ->middleware('permission:job_offer_letters,edit')->name('joboffers.edit');
-        Route::put('/joboffers/{jobOffer}', [JobOfferController::class, 'update'])
-            ->middleware('permission:job_offer_letters,edit')->name('joboffers.update');
-        Route::get('/joboffers/{jobOffer}', [JobOfferController::class, 'show'])
-            ->middleware('permission:job_offer_letters,view')->name('joboffers.show');
-        Route::delete('/joboffers/{jobOffer}', [JobOfferController::class, 'destroy'])
-            ->middleware('permission:job_offer_letters,delete')->name('joboffers.destroy');
-        Route::get('/joboffers/{jobOffer}/print', [JobOfferController::class, 'print'])
-            ->middleware('permission:job_offer_letters,view')->name('joboffers.print');
-
-        Route::get('/Staffrecruitmentorders', [StaffRecruitmentOrderController::class, 'index'])
-            ->middleware('permission:Staff_recruitment_orders,view')->name('staffrecruitmentorders.index');
-        Route::post('/Staffrecruitmentorders', [StaffRecruitmentOrderController::class, 'store'])
-            ->middleware('permission:Staff_recruitment_orders,edit')->name('staffrecruitmentorders.store');
-        Route::get('/Staffrecruitmentorders/{staffRecruitmentOrder}/edit', [StaffRecruitmentOrderController::class, 'edit'])
-            ->middleware('permission:Staff_recruitment_orders,edit')->name('staffrecruitmentorders.edit');
-        Route::put('/Staffrecruitmentorders/{staffRecruitmentOrder}', [StaffRecruitmentOrderController::class, 'update'])
-            ->middleware('permission:Staff_recruitment_orders,edit')->name('staffrecruitmentorders.update');
-        Route::get('/Staffrecruitmentorders/{staffRecruitmentOrder}', [StaffRecruitmentOrderController::class, 'show'])
-            ->middleware('permission:Staff_recruitment_orders,view')->name('staffrecruitmentorders.show');
-        Route::delete('/Staffrecruitmentorders/{staffRecruitmentOrder}', [StaffRecruitmentOrderController::class, 'destroy'])
-            ->middleware('permission:Staff_recruitment_orders,delete')->name('staffrecruitmentorders.destroy');
-
-        foreach ([
-            'schoolperformancereports'=>['school-performance','school_performance'],
-            'monthlyappraisalteaching'=>['monthly-teacher','monthly_teacher'],
-            'monthlyappraisalmanagement'=>['monthly-management','monthly_management'],
-            'annualconfidentialreport'=>['annual-teacher','annual_teacher'],
-            'annualconfidentialreportmanagement'=>['annual-management','annual_management'],
-            'nonconferencenoticereply'=>['notice-reply','notice_reply'],
-            'clearanceform'=>['clearance','clearance'],
-            'exitinterview'=>['exit-interview','exit_interview'],
-            'finalsettlement'=>['final-settlement','final_settlement'],
-            'showcausenotice'=>['show-cause','show_cause'],
-            'inquiryprocess'=>['inquiry','inquiry'],
-        ] as $path=>$route) {
-            [$name,$type]=$route;
-            Route::get('/'.$path, [PerformanceAndComplianceController::class, 'index'])->defaults('type',$type)->middleware('permission:hrm,view')->name($name.'.index');
-            Route::post('/'.$path, [PerformanceAndComplianceController::class, 'store'])->defaults('type',$type)->middleware('permission:hrm,edit')->name($name.'.store');
-            Route::get('/'.$path.'/{record}/edit', [PerformanceAndComplianceController::class, 'edit'])->defaults('type',$type)->middleware('permission:hrm,edit')->name($name.'.edit');
-            Route::put('/'.$path.'/{record}', [PerformanceAndComplianceController::class, 'update'])->defaults('type',$type)->middleware('permission:hrm,edit')->name($name.'.update');
-            Route::get('/'.$path.'/{record}', [PerformanceAndComplianceController::class, 'show'])->defaults('type',$type)->middleware('permission:hrm,view')->name($name.'.show');
-            Route::delete('/'.$path.'/{record}', [PerformanceAndComplianceController::class, 'destroy'])->defaults('type',$type)->middleware('permission:hrm,delete')->name($name.'.destroy');
-        }
-
-        Route::get('/staff/create/{branchId?}', [HrmsStaffController::class, 'create'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.create');
-
-        Route::post('/staff/create/{branchId?}', [HrmsStaffController::class, 'store'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.store');
-
-        Route::post('/staff/options/{type}', [HrmsStaffController::class, 'storeOption'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.options.store');
-
-        Route::get('/staff/profile/{staffId}', [HrmsStaffController::class, 'profile'])
-            ->middleware('permission:staff,view')
-            ->name('staff.profile');
-
-        Route::get('/staff/edit/{staffId}', [HrmsStaffController::class, 'edit'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.edit');
-
-        Route::put('/staff/{staffId}', [HrmsStaffController::class, 'update'])
-            ->middleware('permission:staff,edit')
-            ->name('staff.update');
-
-        Route::get('/staff/appointment-form/{staffId}', [HrmsStaffController::class, 'appointmentForm'])
-            ->middleware('permission:staff,view')
-            ->name('staff.appointment-form');
-
-        Route::get('/staff/service-experience-certificate/{staffId}', [HrmsStaffController::class, 'serviceExperienceCertificate'])
-            ->middleware('permission:staff,view')
-            ->name('staff.service-experience-certificate');
     });
 
 /*

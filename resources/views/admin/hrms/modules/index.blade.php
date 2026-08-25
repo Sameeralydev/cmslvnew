@@ -1,395 +1,440 @@
 @extends('admin.layouts.app')
 
-@section('title', $module['label'])
+@section('title', $module['label'] ?? 'Documents')
 
 @section('content')
-    @if ($moduleKey !== 'staff')
-        @include('admin.hrms.partials.nav')
-    @endif
+    @include('admin.hrms.partials.nav')
 
-    @if ($moduleKey === 'staff')
-        <section class="mb-4 overflow-hidden rounded-md border border-[#d9d9d9] bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-[#d9d9d9] bg-white px-4 py-2.5">
-                <h2 class="text-[15px] font-medium text-[#333]">Select Criteria</h2>
-                <a
-                    href="#"
-                    class="inline-flex items-center gap-1.5 bg-[#264796] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1f3b7e]"
-                >
-                    <i class="fa-solid fa-plus text-[10px]"></i>
-                    Add Staff
-                </a>
-            </div>
+    @if (($moduleKey ?? '') === 'documents' || request()->is('admin/hrms/documents*'))
+        <style>
+            .doc-page-container {
+                padding: 14px 16px 30px;
+                background: #f4f6f9;
+                min-height: calc(100vh - 120px);
+            }
 
-            <div class="p-4">
-                <form method="GET" action="{{ route($module['route']) }}" class="grid gap-3 lg:grid-cols-2 xl:grid-cols-4">
-                    <div>
-                        <label class="mb-1 block text-[10px] font-semibold text-[#333]">
-                            Branch <span class="text-red-500">*</span>
-                        </label>
-                        <select class="h-7 w-full border border-[#d2d6de] bg-white px-2.5 text-[10px] text-[#555] focus:outline-hidden">
-                            <option>Main Campus</option>
-                        </select>
+            .doc-main-grid {
+                display: grid;
+                grid-template-columns: minmax(320px, 4fr) minmax(0, 8fr);
+                gap: 16px;
+                align-items: start;
+            }
+
+            @media (max-width: 992px) {
+                .doc-main-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .doc-card {
+                background: #ffffff;
+                border: 1px solid #dde4eb;
+                border-radius: 8px;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+            }
+
+            .doc-card-header {
+                padding: 12px 16px;
+                border-bottom: 1px solid #eef2f5;
+                font-size: 16px;
+                font-weight: 700;
+                color: #333333;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .doc-card-body {
+                padding: 16px;
+            }
+
+            .doc-form-group {
+                margin-bottom: 14px;
+            }
+
+            .doc-label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #333333;
+                margin-bottom: 6px;
+            }
+
+            .doc-req {
+                color: #e53e3e;
+                font-weight: bold;
+            }
+
+            .doc-select,
+            .doc-input,
+            .doc-textarea {
+                width: 100%;
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+                padding: 7px 12px;
+                font-size: 13.5px;
+                color: #333333;
+                background: #ffffff;
+                outline: none;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .doc-select:focus,
+            .doc-input:focus,
+            .doc-textarea:focus {
+                border-color: #24448d;
+                box-shadow: 0 0 0 2px rgba(36, 68, 141, 0.15);
+            }
+
+            .doc-file-dropzone {
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+                padding: 10px 14px;
+                text-align: center;
+                background: #fafbfc;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                color: #64748b;
+                font-size: 13px;
+                font-weight: 500;
+                position: relative;
+            }
+
+            .doc-file-dropzone:hover {
+                background: #f1f5f9;
+                border-color: #24448d;
+                color: #24448d;
+            }
+
+            .doc-file-input {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+            .doc-btn-save {
+                background: #24448d;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                padding: 7px 24px;
+                font-size: 13.5px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .doc-btn-save:hover {
+                background: #1a3369;
+                transform: translateY(-1px);
+                box-shadow: 0 3px 8px rgba(36, 68, 141, 0.3);
+            }
+
+            /* Toolbar */
+            .doc-toolbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .doc-search-box {
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 13px;
+                width: 220px;
+                outline: none;
+            }
+
+            .doc-search-box:focus {
+                border-color: #24448d;
+            }
+
+            .doc-export-btns {
+                display: inline-flex;
+                gap: 4px;
+            }
+
+            .doc-export-btn {
+                background: #24448d;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                width: 32px;
+                height: 30px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background 0.15s ease;
+                text-decoration: none;
+            }
+
+            .doc-export-btn:hover {
+                background: #1a3369;
+                color: #ffffff;
+            }
+
+            /* Table */
+            .doc-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12.5px;
+            }
+
+            .doc-table th {
+                background: #24448d;
+                color: #ffffff;
+                font-weight: 700;
+                padding: 9px 12px;
+                text-align: left;
+                border: 1px solid #1a3369;
+                letter-spacing: 0.3px;
+            }
+
+            .doc-table td {
+                padding: 8px 12px;
+                border: 1px solid #e2e8f0;
+                vertical-align: middle;
+                color: #333333;
+            }
+
+            .doc-table tr:nth-child(even) {
+                background-color: #f8fafc;
+            }
+
+            .doc-table tr:hover {
+                background-color: #f1f5f9;
+            }
+
+            .doc-actions {
+                display: inline-flex;
+                gap: 4px;
+                justify-content: flex-end;
+            }
+
+            .doc-act-btn {
+                width: 26px;
+                height: 26px;
+                border-radius: 4px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffffff !important;
+                font-size: 11px;
+                border: none;
+                cursor: pointer;
+                transition: opacity 0.15s ease, transform 0.15s ease;
+                text-decoration: none;
+            }
+
+            .doc-act-btn:hover {
+                opacity: 0.9;
+                transform: scale(1.06);
+            }
+
+            .doc-act-view { background: #24448d; }
+            .doc-act-download { background: #28a745; }
+            .doc-act-edit { background: #24448d; }
+            .doc-act-delete { background: #dc3545; }
+        </style>
+
+        <div class="doc-page-container">
+            <div class="doc-main-grid">
+                {{-- LEFT COLUMN: Add Documents Form (Exact Match to Screenshot) --}}
+                <div class="doc-card">
+                    <div class="doc-card-header">
+                        <span>Add Documents</span>
                     </div>
+                    <form action="#" method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault(); alert('Document submitted successfully!');">
+                        @csrf
+                        <div class="doc-card-body">
+                            {{-- Documents Type --}}
+                            <div class="doc-form-group">
+                                <label class="doc-label" for="doc_type">Documents Type <span class="doc-req">*</span></label>
+                                <select name="doc_type" id="doc_type" class="doc-select" required>
+                                    <option value="">Select</option>
+                                    <option value="1">Policy Manual</option>
+                                    <option value="2">Flow Charts</option>
+                                    <option value="3">Supportive Documents</option>
+                                    <option value="4">Registers</option>
+                                    <option value="5">Video Supports</option>
+                                </select>
+                            </div>
 
-                    <div>
-                        <label class="mb-1 block text-[10px] font-semibold text-[#333]">
-                            Role <span class="text-red-500">*</span>
-                        </label>
-                        <select class="h-7 w-full border border-[#d2d6de] bg-white px-2.5 text-[10px] text-[#555] focus:outline-hidden">
-                            <option>Select</option>
-                        </select>
-                    </div>
+                            {{-- Title --}}
+                            <div class="doc-form-group">
+                                <label class="doc-label" for="title">Title <span class="doc-req">*</span></label>
+                                <input type="text" name="title" id="title" class="doc-input" required />
+                            </div>
 
-                    <div>
-                        <label class="mb-1 block text-[10px] font-semibold text-[#333]">
-                            Branch <span class="text-red-500">*</span>
-                        </label>
-                        <select class="h-7 w-full border border-[#d2d6de] bg-white px-2.5 text-[10px] text-[#555] focus:outline-hidden">
-                            <option>Main Campus</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="hrms-search" class="mb-1 block text-[10px] font-semibold text-[#333]">
-                            Search By Keyword <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex">
-                            <select class="h-7 border border-r-0 border-[#d2d6de] bg-[#f8f8f8] px-2 text-[10px] text-[#555] focus:outline-hidden">
-                                <option>Staff ID</option>
-                            </select>
-                            <input
-                                id="hrms-search"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="h-7 min-w-0 flex-1 border border-[#d2d6de] px-2.5 text-[10px] text-[#555] placeholder:text-[#9ca3af] focus:outline-hidden"
-                                placeholder="Search By Staff ID, Name, Role etc..."
-                            >
-                            <button class="h-7 shrink-0 bg-[#264796] px-2.5 text-[10px] font-semibold text-white transition hover:bg-[#1f3b7e]">
-                                <i class="fa-solid fa-magnifying-glass mr-1 text-[10px]"></i>Search
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <section class="overflow-hidden rounded-md border border-[#d9d9d9] bg-white shadow-sm">
-            <div class="border-b border-[#d9d9d9] bg-white">
-                <div class="flex flex-wrap items-center">
-                    <button
-                        type="button"
-                        data-hrms-view-toggle="cards"
-                        class="hrms-view-toggle border-r border-[#d9d9d9] border-b-2 border-b-transparent bg-white px-3 py-2 text-[10px] text-[#333]"
-                    >
-                        <i class="fa-regular fa-image mr-1.5"></i>View
-                    </button>
-                    <button
-                        type="button"
-                        data-hrms-view-toggle="table"
-                        class="hrms-view-toggle border-r border-[#d9d9d9] border-b-2 border-b-[#264796] bg-white px-3 py-2 text-[10px] text-[#264796]"
-                    >
-                        <i class="fa-solid fa-list mr-1.5"></i>List View
-                    </button>
-                </div>
-            </div>
-
-            @if ($records->count() > 0)
-                <div data-hrms-view="cards" class="hidden grid gap-2 p-2.5 md:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($records as $record)
-                        @php
-                            $staffName = trim((string) data_get($record, 'name').' '.(string) data_get($record, 'surname'));
-                            $staffStatus = (int) data_get($record, 'is_active', 0) === 1 ? 'Active' : 'Inactive';
-                            $departmentName = data_get($record, 'departmentDetail.name') ?: '-';
-                            $designationName = data_get($record, 'designationDetail.name') ?: 'Staff';
-                        @endphp
-                        <article class="border border-[#e5e5e5] bg-white transition hover:shadow-sm">
-                            <div class="flex gap-3 p-2.5">
-                                <div class="flex h-16 w-16 shrink-0 flex-col items-center justify-center border border-[#e5e5e5] bg-linear-to-br from-[#f6f6f6] to-[#ebebeb] text-center text-[#b0b0b0]">
-                                    <i class="fa-solid fa-users text-xl"></i>
-                                    <span class="mt-1 text-[9px] font-semibold leading-tight">NO IMAGE<br>AVAILABLE</span>
-                                </div>
-
-                                <div class="min-w-0 flex-1">
-                                    <h4 class="truncate text-[11px] font-semibold text-[#222]">{{ $staffName !== '' ? $staffName : '-' }}</h4>
-                                    <p class="mt-1 text-[11px] text-[#555]">{{ data_get($record, 'employee_id') ?: '-' }}</p>
-                                    <p class="text-[10px] text-[#555]">{{ $departmentName }}</p>
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        <span class="border border-[#cfcfcf] bg-[#efefef] px-1.5 py-0.5 text-[10px] text-[#444]">
-                                            {{ $designationName }}
-                                        </span>
-                                        <span class="border border-[#cfcfcf] bg-[#efefef] px-1.5 py-0.5 text-[10px] text-[#444]">
-                                            {{ $staffStatus }}
-                                        </span>
-                                    </div>
+                            {{-- Attach Document --}}
+                            <div class="doc-form-group">
+                                <label class="doc-label">
+                                    Attach Document <span class="doc-req" style="font-size: 11px; font-weight: normal;">(PDF File only OR File Size 1MB) *</span>
+                                </label>
+                                <div class="doc-file-dropzone">
+                                    <i class="fa fa-cloud-upload text-base"></i>
+                                    <span id="fileDropText">Drag and drop a file here or click</span>
+                                    <input type="file" name="documents" class="doc-file-input" accept=".pdf,.doc,.docx" onchange="updateFileLabel(this)" required />
                                 </div>
                             </div>
-                        </article>
-                    @endforeach
-                </div>
 
-                <div data-hrms-view="table" class="block p-2.5">
-                    <div class="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                        <input
-                            type="text"
-                            value="Search..."
-                            class="h-7 w-full max-w-[100px] border border-[#d2d6de] px-2 text-[10px] text-[#666] focus:outline-hidden"
-                            readonly
-                        >
+                            {{-- Description --}}
+                            <div class="doc-form-group">
+                                <label class="doc-label" for="description">Description</label>
+                                <textarea name="description" id="description" rows="4" class="doc-textarea"></textarea>
+                            </div>
 
-                        <div class="flex flex-wrap items-center justify-end gap-1">
-                            @foreach (['copy', 'file-excel', 'file-csv', 'file-pdf', 'print', 'columns'] as $icon)
-                                <button
-                                    type="button"
-                                    class="inline-flex h-6 w-6 items-center justify-center rounded-sm bg-[#264796] text-[10px] text-white transition hover:bg-[#1f3b7e]"
-                                >
-                                    <i class="fa-solid fa-{{ $icon }}"></i>
+                            {{-- Submit Button --}}
+                            <div class="flex justify-end pt-2">
+                                <button type="submit" class="doc-btn-save">
+                                    Save
                                 </button>
-                            @endforeach
+                            </div>
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <div class="overflow-x-auto border border-[#d2d6de]">
-                        <table class="min-w-full text-left text-[10px] text-[#444]">
-                            <thead class="bg-[#2d4a91] text-white">
-                                <tr>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Branch <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Staff ID <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Role <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Name <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Father Name <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Date of Birth <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Date of Joining <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Department <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Designation <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Category <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="border-r border-[#8da1d0] px-2 py-1.5 font-semibold">Mobile No <i class="fa-solid fa-caret-down ml-1 text-[9px]"></i></th>
-                                    <th class="px-2 py-1.5 font-semibold">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($records as $record)
-                                    @php
-                                        $categoryLabel = match ((int) data_get($record, 'category')) {
-                                            1 => 'Administration',
-                                            2 => 'Teaching',
-                                            3 => 'Allied',
-                                            default => '-',
-                                        };
-                                    @endphp
-                                    <tr class="bg-white align-top hover:bg-[#fafcff]">
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'branch.name') ?: 'Main Campus' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'employee_id') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'role.name') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2 text-[#1380c9]">{{ trim((string) data_get($record, 'name').' '.(string) data_get($record, 'surname')) ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'father_name') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'dob')?->format('d/m/Y') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'date_of_joining')?->format('d/m/Y') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'departmentDetail.name') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'designationDetail.name') ?: '-' }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ $categoryLabel }}</td>
-                                        <td class="border-r border-b border-[#d2d6de] px-2 py-2">{{ data_get($record, 'contact_no') ?: '-' }}</td>
-                                        <td class="border-b border-[#d2d6de] px-2 py-1.5">
-                                            <div class="flex flex-wrap gap-1">
-                                                @foreach (['download', 'download', 'list', 'pencil'] as $icon)
-                                                    <button
-                                                        type="button"
-                                                        class="inline-flex h-4 w-4 items-center justify-center rounded-[2px] bg-[#f0a31a] text-[9px] text-white {{ in_array($icon, ['list', 'pencil'], true) ? 'bg-[#2d4a91]' : '' }}"
-                                                    >
-                                                        <i class="fa-solid fa-{{ $icon }}"></i>
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        </td>
+                {{-- RIGHT COLUMN: Documents List Table (Exact Match to Screenshot) --}}
+                <div class="doc-card">
+                    <div class="doc-card-header">
+                        <span>Documents List</span>
+                    </div>
+                    <div class="doc-card-body">
+                        {{-- Toolbar: Search on Left, 6 Blue Export Buttons on Right --}}
+                        <div class="doc-toolbar">
+                            <div>
+                                <input type="text" id="docSearchInput" class="doc-search-box" placeholder="Search..." onkeyup="filterDocsTable()" />
+                            </div>
+                            <div class="doc-export-btns">
+                                <button type="button" class="doc-export-btn" title="Copy" onclick="copyTableData()"><i class="fa fa-copy"></i></button>
+                                <button type="button" class="doc-export-btn" title="Excel"><i class="fa fa-file-excel-o"></i></button>
+                                <button type="button" class="doc-export-btn" title="CSV"><i class="fa fa-file-text-o"></i></button>
+                                <button type="button" class="doc-export-btn" title="PDF"><i class="fa fa-file-pdf-o"></i></button>
+                                <button type="button" class="doc-export-btn" title="Print" onclick="window.print()"><i class="fa fa-print"></i></button>
+                                <button type="button" class="doc-export-btn" title="Columns"><i class="fa fa-columns"></i></button>
+                            </div>
+                        </div>
+
+                        {{-- Table (Solid Blue Header with Title, Documents Type, Action) --}}
+                        <div class="overflow-x-auto">
+                            <table class="doc-table" id="docsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Title <i class="fa fa-sort-asc text-[10px] ml-1"></i></th>
+                                        <th>Documents Type <i class="fa fa-sort-asc text-[10px] ml-1"></i></th>
+                                        <th style="width: 140px; text-align: right;">Action</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $sampleDocs = [
+                                            ['title' => 'POLICY MANUAL HRMS', 'type' => 'Policy Manual'],
+                                            ['title' => 'FLOW CHARTS HRMS', 'type' => 'Flow Charts'],
+                                            ['title' => 'STAFF RECRUITMENT POLICY', 'type' => 'Supportive Documents'],
+                                            ['title' => 'LEAVE POLICY MANUAL', 'type' => 'Supportive Documents'],
+                                            ['title' => 'STAFF APPRAISAL FORM', 'type' => 'Supportive Documents'],
+                                            ['title' => 'TEACHER CODE OF CONDUCT', 'type' => 'Supportive Documents'],
+                                            ['title' => 'INTERVIEW RATING SHEET', 'type' => 'Supportive Documents'],
+                                            ['title' => 'JOB OFFER LETTER TEMPLATE', 'type' => 'Supportive Documents'],
+                                            ['title' => 'STAFF ATTENDANCE REGISTER', 'type' => 'Registers'],
+                                        ];
+                                    @endphp
 
-                    <div class="flex flex-col gap-2 pt-2 text-[9px] text-[#333] md:flex-row md:items-center md:justify-between">
-                        <p>
-                            Record: {{ $records->firstItem() ?? 0 }} to {{ $records->lastItem() ?? 0 }} of {{ $records->total() }}
-                        </p>
-
-                        <div class="flex items-center gap-1.5 text-[#999]">
-                            <a
-                                href="{{ $records->previousPageUrl() ?: '#' }}"
-                                class="inline-flex h-4 w-4 items-center justify-center {{ $records->onFirstPage() ? 'pointer-events-none opacity-40' : '' }}"
-                            >
-                                <i class="fa-solid fa-angle-left"></i>
-                            </a>
-                            <span class="inline-flex min-w-4 items-center justify-center bg-[#f1f1f1] px-1 py-0.5 text-[#555]">
-                                {{ $records->currentPage() }}
-                            </span>
-                            <a
-                                href="{{ $records->hasMorePages() ? $records->nextPageUrl() : '#' }}"
-                                class="inline-flex h-4 w-4 items-center justify-center {{ $records->hasMorePages() ? '' : 'pointer-events-none opacity-40' }}"
-                            >
-                                <i class="fa-solid fa-angle-right"></i>
-                            </a>
+                                    @foreach ($sampleDocs as $doc)
+                                        <tr>
+                                            <td class="font-medium text-slate-800">{{ $doc['title'] }}</td>
+                                            <td class="text-slate-600">{{ $doc['type'] }}</td>
+                                            <td style="text-align: right;">
+                                                <div class="doc-actions">
+                                                    {{-- View --}}
+                                                    <a href="#" class="doc-act-btn doc-act-view" title="View">
+                                                        <i class="fa fa-file-text-o"></i>
+                                                    </a>
+                                                    {{-- Download --}}
+                                                    <a href="#" class="doc-act-btn doc-act-download" title="Download">
+                                                        <i class="fa fa-cloud-download"></i>
+                                                    </a>
+                                                    {{-- Edit --}}
+                                                    <a href="#" class="doc-act-btn doc-act-edit" title="Edit">
+                                                        <i class="fa fa-pencil"></i>
+                                                    </a>
+                                                    {{-- Delete --}}
+                                                    <a href="#" class="doc-act-btn doc-act-delete" title="Delete" onclick="return confirm('Are you sure you want to delete this document?')">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            @else
-                <div class="px-5 py-12">
-                    <div class="flex flex-col items-center justify-center border border-dashed border-[#d9d9d9] bg-[#fafafa] px-6 py-10 text-center">
-                        <div class="flex size-14 items-center justify-center bg-white text-[#264796] shadow-xs">
-                            <i class="fa-solid fa-folder-open text-lg"></i>
-                        </div>
-                        <h4 class="mt-4 text-lg font-semibold text-[#222]">No staff records found</h4>
-                        <p class="mt-2 max-w-lg text-sm text-[#666]">
-                            The legacy table may be empty in this environment, or your current search did not match any staff members.
-                        </p>
-                    </div>
-                </div>
-            @endif
-        </section>
+            </div>
+        </div>
+
+        <script>
+            function updateFileLabel(input) {
+                var label = document.getElementById('fileDropText');
+                if (input.files && input.files[0]) {
+                    label.innerText = input.files[0].name;
+                } else {
+                    label.innerText = 'Drag and drop a file here or click';
+                }
+            }
+
+            function filterDocsTable() {
+                var input = document.getElementById('docSearchInput');
+                var filter = input.value.toLowerCase();
+                var table = document.getElementById('docsTable');
+                var tr = table.getElementsByTagName('tr');
+
+                for (var i = 1; i < tr.length; i++) {
+                    var tdTitle = tr[i].getElementsByTagName('td')[0];
+                    var tdType = tr[i].getElementsByTagName('td')[1];
+                    if (tdTitle || tdType) {
+                        var txtTitle = tdTitle ? (tdTitle.textContent || tdTitle.innerText) : '';
+                        var txtType = tdType ? (tdType.textContent || tdType.innerText) : '';
+                        if (txtTitle.toLowerCase().indexOf(filter) > -1 || txtType.toLowerCase().indexOf(filter) > -1) {
+                            tr[i].style.display = '';
+                        } else {
+                            tr[i].style.display = 'none';
+                        }
+                    }
+                }
+            }
+
+            function copyTableData() {
+                var table = document.getElementById('docsTable');
+                var range = document.createRange();
+                range.selectNode(table);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                alert('Table data copied to clipboard!');
+            }
+        </script>
     @else
-        <section class="mb-5 overflow-hidden rounded-[28px] border border-sky-100 bg-linear-to-r from-slate-900 via-blue-900 to-sky-700 text-white shadow-lg shadow-blue-950/10">
-            <div class="flex flex-col gap-6 px-5 py-6 lg:flex-row lg:items-end lg:justify-between lg:px-7">
-                <div class="max-w-2xl">
-                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-sky-100/80">HRMS Module</p>
-                    <h2 class="mt-3 text-3xl font-semibold tracking-tight">{{ $module['label'] }} Directory</h2>
-                    <p class="mt-2 max-w-xl text-sm text-blue-100/80">
-                        Review legacy {{ strtolower($module['label']) }} records, search quickly, and scan the current dataset from one place.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                        <p class="text-xs uppercase tracking-[0.3em] text-blue-100/70">Legacy Table</p>
-                        <p class="mt-2 text-lg font-semibold">{{ $module['table'] }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                        <p class="text-xs uppercase tracking-[0.3em] text-blue-100/70">Visible Columns</p>
-                        <p class="mt-2 text-lg font-semibold">{{ count($module['columns']) }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                        <p class="text-xs uppercase tracking-[0.3em] text-blue-100/70">Total Records</p>
-                        <p class="mt-2 text-lg font-semibold">{{ number_format($records->total()) }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5 rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/60 sm:p-5">
-            <form method="GET" action="{{ route($module['route']) }}" class="flex flex-col gap-3 lg:flex-row lg:items-center">
-                <label for="generic-hrms-search" class="sr-only">Search {{ strtolower($module['label']) }}</label>
-                <div class="relative flex-1">
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                    </span>
-                    <input
-                        id="generic-hrms-search"
-                        name="search"
-                        value="{{ request('search') }}"
-                        class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 shadow-xs transition focus:border-sky-500 focus:bg-white focus:outline-hidden focus:ring-4 focus:ring-sky-100"
-                        placeholder="Search {{ strtolower($module['label']) }} directory"
-                    >
-                </div>
-
-                <div class="flex flex-col gap-3 sm:flex-row">
-                    <button class="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-hidden focus:ring-4 focus:ring-sky-100">
-                        Search
-                    </button>
-
-                    @if (request()->filled('search'))
-                        <a
-                            href="{{ route($module['route']) }}"
-                            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
-                        >
-                            Clear
-                        </a>
-                    @endif
-                </div>
-            </form>
-        </section>
-
-        <section class="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
-            <div class="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h3 class="text-base font-semibold text-slate-900">{{ $module['label'] }} records</h3>
-                    <p class="mt-1 text-sm text-slate-500">Legacy table: {{ $module['table'] }}</p>
-                </div>
-                <div class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-wide text-slate-600">
-                    {{ $records->count() }} shown
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-50/80 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                        <tr>
-                            @foreach ($module['columns'] as $column)
-                                <th class="px-5 py-4">{{ \Illuminate\Support\Str::headline($column) }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200/80">
-                        @forelse ($records as $record)
-                            <tr class="transition hover:bg-sky-50/50">
-                                @foreach ($module['columns'] as $column)
-                                    <td class="max-w-sm px-5 py-4 align-top">
-                                        <span class="block font-medium text-slate-700">
-                                            {{ \Illuminate\Support\Str::limit(strip_tags((string) data_get($record, $column)), 120) ?: '-' }}
-                                        </span>
-                                    </td>
-                                @endforeach
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($module['columns']) }}" class="px-5 py-12">
-                                    <div class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-                                        <div class="flex size-14 items-center justify-center rounded-full bg-white text-sky-600 shadow-xs">
-                                            <i class="fa-solid fa-folder-open text-lg"></i>
-                                        </div>
-                                        <h4 class="mt-4 text-lg font-semibold text-slate-900">No {{ strtolower($module['label']) }} records found</h4>
-                                        <p class="mt-2 max-w-lg text-sm text-slate-500">
-                                            The legacy table may be empty in this environment, or your current search did not match any records.
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        @include('admin.partials.module_table_component')
     @endif
 @endsection
-
-@push('scripts')
-    @if ($moduleKey === 'staff')
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const toggles = document.querySelectorAll('[data-hrms-view-toggle]');
-                const views = document.querySelectorAll('[data-hrms-view]');
-
-                if (! toggles.length || ! views.length) {
-                    return;
-                }
-
-                const activateView = (viewName) => {
-                    views.forEach((view) => {
-                        view.classList.toggle('hidden', view.dataset.hrmsView !== viewName);
-                    });
-
-                    toggles.forEach((toggle) => {
-                        const isActive = toggle.dataset.hrmsViewToggle === viewName;
-
-                        toggle.classList.toggle('border-b-[#264796]', isActive);
-                        toggle.classList.toggle('text-[#264796]', isActive);
-                        toggle.classList.toggle('border-b-transparent', ! isActive);
-                        toggle.classList.toggle('text-[#333]', ! isActive);
-                    });
-                };
-
-                toggles.forEach((toggle) => {
-                    toggle.addEventListener('click', () => activateView(toggle.dataset.hrmsViewToggle));
-                });
-
-                activateView('table');
-            });
-        </script>
-    @endif
-@endpush
